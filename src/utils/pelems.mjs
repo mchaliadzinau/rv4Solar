@@ -73,3 +73,5 @@ export const th = (props, ...children) =>  ( _('th')(props, ...children) );
 export const td = (props, ...children) =>  ( _('td')(props, ...children) );
 
 export const canvas = (props, ...children) =>  ( _('canvas')(props, ...children) );
+
+export const $ = null;
