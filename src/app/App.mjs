@@ -1,5 +1,5 @@
 import { Component } from '/@/preact.mjs';
-import { _, div, table, tr, td, h2 } from '/utils/pelems.mjs';
+import { $, _, div, table, tr, td, h2 } from '/utils/pelems.mjs';
 
 export default class App extends Component {
 	componentDidMount() {
@@ -7,25 +7,31 @@ export default class App extends Component {
 	}
 	render(props, state) {
 		return (
-			div(null,
+			div(_,
 				div({id:'panel-bottom'},
 					table({style:'float:left'},
-						tr(null,
-							td(null,'x'), td(null,'y'), td(null,'z'), td(null,'orientation')
+						tr(_,
+							td(_,'x'), 
+							td(_,'y'), 
+							td(_,'z'), 
+							td(_,'orientation')
 						),
-						tr(null,
-							td({class:'cam-x'}), td({class:'cam-y'}), td({class:'cam-z'}), td({class:'cam-orientation'})
+						tr(_,
+							td({class:'cam-x'}), 
+							td({class:'cam-y'}), 
+							td({class:'cam-z'}), 
+							td({class:'cam-orientation'})
 						),
 					),
 	
 					table({style:'float:right'},
-						tr(null,
-							td(null,
-								_('input')({class:'cam-control-speed', type:"number", placeholder:"Cam speed", pattern:"[0-9]{1,16}"})
+						tr(_,
+							td(_,
+								$('input')({class:'cam-control-speed', type:"number", placeholder:"Cam speed", pattern:"[0-9]{1,16}"})
 							),
-							td(null,
+							td(_,
 								'cam inertia:',
-								_('input')({class:'cam-control-inertia', type:"checkbox"})
+								$('input')({class:'cam-control-inertia', type:"checkbox"})
 							)
 						)
 					)
