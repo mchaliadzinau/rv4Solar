@@ -73,13 +73,13 @@ function createOrbitVisualization(scene, center, object) {
 
 var scene = new THREE.Scene();
 // SET SUN
-const sun = addPlanet({...data.sun});
+const sun = addPlanet(Object.assign({},data.sun));
 // SET MERCURY
-const mercury = addPlanet({...data.mercury});
-createOrbitVisualization(scene, {...data.sun}, {...data.mercury});
+const mercury = addPlanet(Object.assign({},data.mercury));
+createOrbitVisualization(scene, Object.assign({},data.sun), Object.assign({},data.mercury));
 // SET VENUS
-const venus = addPlanet({...data.venus});
-createOrbitVisualization(scene, {...data.sun}, {...data.venus});
+const venus = addPlanet(Object.assign({},data.venus));
+createOrbitVisualization(scene, Object.assign({},data.sun), Object.assign({},data.venus));
 
 function starForge() {
   /* 	Yep, it's a Star Wars: Knights of the Old Republic reference,

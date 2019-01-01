@@ -1,9 +1,11 @@
 import { Component } from '/@/preact.mjs';
 import { $, _, div, table, tr, td, h2 } from '/utils/pelems.mjs';
+import SolarInit from '/utils/solar.js';
 
 export default class App extends Component {
 	componentDidMount() {
 		this.setState({ message:'rv4Solar project init!' });
+		SolarInit();
 	}
 	render(props, state) {
 		return (
