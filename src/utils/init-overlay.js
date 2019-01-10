@@ -35,7 +35,7 @@ function updateLabel(label, object, renderer, camera) {
 
 export const setupOverlay = (renderer, camera, parentElement, onClick) => {
     //create camera stats
-    const panel = document.getElementById('panel-bottom');
+    const panel = parentElement.children[0];
       if(onClick)
         panel.onclick = onClick;
     const panelElements = {
