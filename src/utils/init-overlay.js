@@ -53,7 +53,7 @@ export const setupOverlay = (renderer, camera, parentElement, onClick) => {
     updateLabel(venusLabel, data.venus, renderer, camera);
   }
 
-  const updateCameraStats = () => {
+  const updateCameraStats = (camera) => {
     panelElements.camX.innerText = camera.position.x;
     panelElements.camY.innerText = camera.position.y;
     panelElements.camZ.innerText = camera.position.z;

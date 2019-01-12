@@ -10,8 +10,8 @@ export default class App extends Component {
 	constructor(props) {
 		super(props);
 		this.setup 					= this.setup.bind(this)
-		this.setupCameraControls 	= this.setupCameraControls.bind()
-		this.loop 					= this.loop.bind(this)
+		this.setupCameraControls 	= this.setupCameraControls.bind(this)
+		this.initLoop 				= this.initLoop.bind(this)
 		this.renderDisplay 			= this.renderDisplay.bind(this);
 
 	}
@@ -30,7 +30,7 @@ export default class App extends Component {
 			camera, renderer, panel:overlay.panel, 
 
 		});
-		this.loop(
+		this.initLoop(
 			scene,
 			renderer, 
 			camera,
@@ -42,7 +42,7 @@ export default class App extends Component {
 
 	setupCameraControls(display) {
         //
-        const camSpeed = 696000000;
+        this.camSpeed = 696000000;
         var controls = new FlyControls( display.camera );
             controls.movementSpeed = 1000;
             controls.domElement = display.renderer.domElement;
@@ -51,7 +51,7 @@ export default class App extends Component {
             controls.dragToLook = false; // FIXME // on true direction fails after hitting input
             controls.inertiaEnabled = false;
         const camSpeedControl = display.panel.getElementsByClassName('cam-control-speed')[0];
-            camSpeedControl.value = camSpeed;
+            camSpeedControl.value = this.camSpeed;
             camSpeedControl.oninput = (event) => {
                 if(!isNaN(event.target.value) && event.target.value > 0 && event.target.value < 900000000000000) {
                     this.camSpeed = parseFloat(event.target.value);
@@ -70,7 +70,7 @@ export default class App extends Component {
 		return controls;
 	}
 	
-	loop(scene, renderer, camera, controls, updateLabelsPos, updateCameraStats) {
+	initLoop(scene, renderer, camera, controls, updateLabelsPos, updateCameraStats) {
 		const clock = new THREE.Clock();
 		const {sun, venus, mercury} = {...this.objects};
 
@@ -82,7 +82,7 @@ export default class App extends Component {
 		
 			updateLabelsPos({mercury, venus});
 			//panel
-			updateCameraStats()
+			updateCameraStats(camera);
 			
 			var delta = clock.getDelta();
 			controls.movementSpeed = this.camSpeed * delta;
