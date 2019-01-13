@@ -14,6 +14,9 @@ export default class App extends Component {
 		this.setupCameraControls 	= this.setupCameraControls.bind(this)
 		this.initLoop 				= this.initLoop.bind(this)
 		this.renderDisplay 			= this.renderDisplay.bind(this);
+		this.state = {
+			isSolarReady: false
+		}
 
 	}
 	componentDidMount() {
@@ -22,13 +25,14 @@ export default class App extends Component {
 	}
 
 	setup(scene, renderer, camera, parentElement) {
-		this.camera = camera;
+		this.camera = camera; // TEMPORAL fro CamPanel
 		this.controls = this.setupCameraControls(camera, renderer);
 		this.initLoop(
 			scene,
 			renderer, 
 			camera
 		)
+		this.setState({isSolarReady: true});
 	}
 
 	setupCameraControls(camera, renderer) {
@@ -84,16 +88,20 @@ export default class App extends Component {
 	}
 
 	render(props, state) {
-		
+		const position = this.camera ? this.camera.position : {};
+		const rotation = this.camera ? this.camera.rotation : {};
+		const {x,y,z} = position;
+		const {_x,_y,_z} = rotation;
+		const inertiaEnabled = this.controls ?  this.controls.inertiaEnabled : false;
 		return (
 			div(_,
 				$(Solarsys)({render: this.renderDisplay}),
 				CamPanel({
-					x:1, y:2, z:3, 
-					_x:1, _y:2, _z:3,
+					x, y, z, 
+					_x, _y, _z,
 					enableControls: true,
-					camSpeed: 	this.camSpeed, 					onCamSpeedChange: 	speed => {this.camSpeed = speed},
-					camInertia: this.controls.inertiaEnabled, 	onCamInertiaClick: 	inertia => {this.controls.inertiaEnabled = inertia},
+					camSpeed: 	this.camSpeed, 		onCamSpeedChange: 	speed => {this.camSpeed = speed},
+					camInertia: inertiaEnabled, 	onCamInertiaClick: 	inertia => {inertiaEnabled = inertia},
 				})
 			)
 		)

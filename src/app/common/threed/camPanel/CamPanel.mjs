@@ -21,6 +21,8 @@ class CamPanel extends Component {
     }
 
     render(props, state) {
+        const {_x, _y, _z} = props;
+        const orientation = `x:${_x ? _x.toString().slice(0,10): N_A},y:${_y ? _y.toString().slice(0,10): N_A},z:${_z ?_z.toString().slice(0,10): N_A}`;
         return div({id:'panel-bottom'},
             table({style:'float:left'},
                 tr(_,
@@ -33,7 +35,7 @@ class CamPanel extends Component {
                     td({class:'cam-x'}, props.x || N_A), 
                     td({class:'cam-y'}, props.y || N_A), 
                     td({class:'cam-z'}, props.z || N_A), 
-                    td({class:'cam-orientation'}, `x:${props._x.toString().slice(0,10)},y:${props._y.toString().slice(0,10)},z:${props._z.toString().slice(0,10)}`)
+                    td({class:'cam-orientation'}, orientation)
                 ),
             ),
 
