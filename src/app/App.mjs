@@ -3,6 +3,7 @@ import { $, _, div, table, tr, td, h2 } from '/utils/pelems.mjs';
 import Solarsys from './solarsys/Solarsys.js';
 import Display from './common/display/Display.js';
 import { setupOverlay } from '/utils/init-overlay.js';
+import CamPanel from './common/threed/camPanel/CamPanel.mjs';
 import FlyControls from '/utils/fly-controls.js';
 import * as THREE from '/@/three.mjs';
 
@@ -21,56 +22,29 @@ export default class App extends Component {
 	}
 
 	setup(scene, renderer, camera, parentElement) {
-
-		const overlay = setupOverlay(
-			renderer, camera, parentElement,
-			// ()=>{console.log('click on overlay!')}
-		);
-		const controls = this.setupCameraControls({
-			camera, renderer, panel:overlay.panel, 
-
-		});
+		this.camera = camera;
+		this.controls = this.setupCameraControls(camera, renderer);
 		this.initLoop(
 			scene,
 			renderer, 
-			camera,
-			controls,
-			overlay.updateLabelsPos, 
-			overlay.updateCameraStats
+			camera
 		)
 	}
 
-	setupCameraControls(display) {
+	setupCameraControls(camera, renderer) {
         //
         this.camSpeed = 696000000;
-        var controls = new FlyControls( display.camera );
+        var controls = new FlyControls( camera );
             controls.movementSpeed = 1000;
-            controls.domElement = display.renderer.domElement;
+            controls.domElement = renderer.domElement;
             controls.rollSpeed = Math.PI / 24;
             controls.autoForward = false;
             controls.dragToLook = false; // FIXME // on true direction fails after hitting input
-            controls.inertiaEnabled = false;
-        const camSpeedControl = display.panel.getElementsByClassName('cam-control-speed')[0];
-            camSpeedControl.value = this.camSpeed;
-            camSpeedControl.oninput = (event) => {
-                if(!isNaN(event.target.value) && event.target.value > 0 && event.target.value < 900000000000000) {
-                    this.camSpeed = parseFloat(event.target.value);
-                }
-            }
-        const camInertiaControl = display.panel.getElementsByClassName('cam-control-inertia')[0];
-            camInertiaControl.checked = controls.inertiaEnabled;
-            camInertiaControl.onclick = (e)=> {
-                if(e.target.checked == true) {
-                    controls.inertiaEnabled = true;
-                } else {
-                    controls.inertiaEnabled = false;
-                }
-            }
-		//
+			controls.inertiaEnabled = false;
 		return controls;
 	}
 	
-	initLoop(scene, renderer, camera, controls, updateLabelsPos, updateCameraStats) {
+	initLoop(scene, renderer, camera, updateLabelsPos, updateCameraStats) {
 		const clock = new THREE.Clock();
 		const {sun, venus, mercury} = {...this.objects};
 
@@ -80,13 +54,13 @@ export default class App extends Component {
 			sun.rotation.x += 0.01;
 			sun.rotation.y += 0.01;
 		
-			updateLabelsPos({mercury, venus});
-			//panel
-			updateCameraStats(camera);
+			// updateLabelsPos({mercury, venus});
+			// //panel
+			// updateCameraStats(camera);
 			
 			var delta = clock.getDelta();
-			controls.movementSpeed = this.camSpeed * delta;
-			controls.update( delta );
+			this.controls.movementSpeed = this.camSpeed * delta;
+			this.controls.update( delta );
 			// console.log(delta); // WTF?!
 		
 			renderer.render( scene, camera );
@@ -110,8 +84,18 @@ export default class App extends Component {
 	}
 
 	render(props, state) {
+		
 		return (
-			$(Solarsys)({render: this.renderDisplay})
+			div(_,
+				$(Solarsys)({render: this.renderDisplay}),
+				CamPanel({
+					x:1, y:2, z:3, 
+					_x:1, _y:2, _z:3,
+					enableControls: true,
+					camSpeed: 	this.camSpeed, 					onCamSpeedChange: 	speed => {this.camSpeed = speed},
+					camInertia: this.controls.inertiaEnabled, 	onCamInertiaClick: 	inertia => {this.controls.inertiaEnabled = inertia},
+				})
+			)
 		)
 	}
 }
