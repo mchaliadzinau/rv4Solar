@@ -4,6 +4,7 @@ function childCheck(child) {
     return typeof child !== 'undefined' && ( 
         typeof child === "boolean"          || 
         typeof child === "string"           || 
+        typeof child === "number"           || 
         child instanceof Element            ||  
         child.constructor.name == 'VNode'   || 
         ( Array.isArray(child) && child.every(childCheck) )
