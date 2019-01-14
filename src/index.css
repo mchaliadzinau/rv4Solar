@@ -8,5 +8,6 @@ div#panel-bottom {
 }
 div#panel-bottom table td{
     width: 120px;  height: 15px;
+    padding: 0px;
     font-size:8pt; color:white;
 }

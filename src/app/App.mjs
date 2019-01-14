@@ -7,6 +7,9 @@ import CamPanel from './common/threed/camPanel/CamPanel.mjs';
 import FlyControls from '/utils/fly-controls.js';
 import * as THREE from '/@/three.mjs';
 
+
+const KEY_FRAME_MIN_INTERVAL = 0.05;
+const DEFAULT_CAM_SPEED = 696000000;
 export default class App extends Component {
 	constructor(props) {
 		super(props);
@@ -15,7 +18,8 @@ export default class App extends Component {
 		this.initLoop 				= this.initLoop.bind(this)
 		this.renderDisplay 			= this.renderDisplay.bind(this);
 		this.state = {
-			isSolarReady: false
+			isSolarReady: false,
+			lastKeyFrame: 0
 		}
 
 	}
@@ -37,7 +41,7 @@ export default class App extends Component {
 
 	setupCameraControls(camera, renderer) {
         //
-        this.camSpeed = 696000000;
+        this.camSpeed = DEFAULT_CAM_SPEED;
         var controls = new FlyControls( camera );
             controls.movementSpeed = 1000;
             controls.domElement = renderer.domElement;
@@ -69,6 +73,10 @@ export default class App extends Component {
 		
 			renderer.render( scene, camera );
 			// display.renderer2.render( scene, display.camera2 );
+
+			if(clock.elapsedTime - this.state.lastKeyFrame > KEY_FRAME_MIN_INTERVAL) {
+				this.setState({lastKeyFrame: clock.elapsedTime})
+			}
 		}
 		animate();
 	}
@@ -101,7 +109,7 @@ export default class App extends Component {
 					_x, _y, _z,
 					enableControls: true,
 					camSpeed: 	this.camSpeed, 		onCamSpeedChange: 	speed => {this.camSpeed = speed},
-					camInertia: inertiaEnabled, 	onCamInertiaClick: 	inertia => {inertiaEnabled = inertia},
+					camInertia: inertiaEnabled, 	onCamInertiaClick: 	inertia => {this.controls.inertiaEnabled = inertia},
 				})
 			)
 		)
