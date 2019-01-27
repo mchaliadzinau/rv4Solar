@@ -1,5 +1,8 @@
 import { Component } from '/@/preact.mjs';
 import * as THREE from '/@/three.mjs';
+import { $, _, div } from '/utils/pelems.mjs';
+
+
 const AU2KM = 149598000;
 const SOLAR_RADIUS = 696000;
 const data = {
@@ -31,33 +34,87 @@ const data = {
     }
 }; 
 
-export default class Solarsys extends Component {
+const KEY_FRAME_MIN_INTERVAL = 0.05;
+const DEFAULT_CAM_SPEED = 696000000;
+class Solarsys extends Component {
     constructor(props) {
         super(props);
-        this.scene = new THREE.Scene();
+        this.cameras = {};
+
         // SET SUN
-        this.sun = addPlanet(this.scene, Object.assign({},data.sun));
+        this.sun = addPlanet(props.addToScene, Object.assign({},data.sun));
         // SET MERCURY
-        this.mercury = addPlanet(this.scene, Object.assign({},data.mercury));
-        createOrbitVisualization(this.scene, Object.assign({},data.sun), Object.assign({},data.mercury));
+        this.mercury = addPlanet(props.addToScene, Object.assign({},data.mercury));
+        createOrbitVisualization(props.addToScene, Object.assign({},data.sun), Object.assign({},data.mercury));
         // SET VENUS
-        this.venus = addPlanet(this.scene, Object.assign({},data.venus));
-        createOrbitVisualization(this.scene, Object.assign({},data.sun), Object.assign({},data.venus));
+        this.venus = addPlanet(props.addToScene, Object.assign({},data.venus));
+        createOrbitVisualization(props.addToScene, Object.assign({},data.sun), Object.assign({},data.venus));
     
-        starForge(this.scene);
+        starForge(props.addToScene);   // to do refactor
+
+        this.cameraStateHandler = this.cameraStateHandler.bind(this);
+        this.loopTick           = this.loopTick.bind(this);
+        this.manageCameras      = this.manageCameras.bind(this);
+        this.handleSceneChildren = this.handleSceneChildren.bind(this);
+
+        props.onReady(this.loopTick);// to do move to better place
+    }
+
+    handleSceneChildren(children) {
+        return children.map(child=> {
+            if(child.constructor.name=='VNode' && child.nodeName.name=='Camera') {
+                child.attributes.onReadyStateChange = this.cameraStateHandler;
+            }
+            return child;
+        });
     }
     
 	render(props, state) {
-        return props.render(data, this.scene, this.sun, this.venus, this.mercury);
+        if(props.children.length) {
+            return div(_,this.handleSceneChildren(props.children))
+        } else {
+            return props.render && props.render();  // reconsider usage of renderprop in future
+        }
+    }
+
+    cameraStateHandler(id, camera, render) {
+        this.cameras[id] = render ? {camera, render} : undefined; // TO DO refactor
+    }
+
+    manageCameras() { // to do Refactor
+        const cameras = [];
+        if(this.cameras['MAIN']) {
+            cameras.push(this.cameras['MAIN']); // => this.cameras['MAIN'].render(this.scene, this.cameras['MAIN'].camera)
+            // updateLabelsPos({mercury, venus});
+            // //panel
+            // updateCameraStats(camera);
+
+            // var delta = clock.getDelta();
+            // this.controls.movementSpeed = this.camSpeed * delta;
+            // this.controls.update( delta );
+            // console.log(delta); // WTF?!
+        }
+        return cameras;
+    }
+
+    loopTick(clock){
+        this.sun.rotation.x += 0.01;
+        this.sun.rotation.y += 0.01;
+
+        if(clock.elapsedTime - this.state.lastKeyFrame > KEY_FRAME_MIN_INTERVAL) {
+            this.setState({lastKeyFrame: clock.elapsedTime})
+        }
+
+        return this.manageCameras();
     }
 }
 
-function addPlanet(scene, planetData) {
+function addPlanet(addToScene, planetData) {// to do refactor
     var g = new THREE.SphereGeometry( planetData.radius, 12, 12 );
     var m = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
     var planet = new THREE.Mesh( g, m );
     planet.position.set(planetData.X,planetData.Y,planetData.Z);
-    scene.add( planet );
+    addToScene( planet );
     return planet;
 }
 function distanceVector( v1, v2 )
@@ -69,7 +126,7 @@ function distanceVector( v1, v2 )
     return Math.sqrt( dx * dx + dy * dy + dz * dz );
 }
 
-function createOrbitVisualization(scene, center, object) {
+function createOrbitVisualization(addToScene, center, object) {
     const radius = distanceVector(center, object)
     const curve = new THREE.EllipseCurve(
         0,  0,            // ax, aY
@@ -83,7 +140,7 @@ function createOrbitVisualization(scene, center, object) {
     
     const orbit = new THREE.Line( curveGeometry, curveMaterial );
     orbit.position.set(center.X,center.Y,center.Z);
-    scene.add( orbit ); 
+    addToScene( orbit ); 
     // rotate orbit to hold and object on it
     const plnVector = new THREE.Vector3(object.X,object.Y,0);
     const objVector = new THREE.Vector3(object.X,object.Y,object.Z);
@@ -94,7 +151,7 @@ function createOrbitVisualization(scene, center, object) {
     orbit.rotateX(zAngle);
 }
 
-function starForge(scene) {
+function starForge(addToScene) {
     /* 	Yep, it's a Star Wars: Knights of the Old Republic reference,
         are you really surprised at this point? 
                                                 */
@@ -136,6 +193,8 @@ function starForge(scene) {
         stars.scale.setScalar( i * 10 );
         stars.matrixAutoUpdate = false;
         stars.updateMatrix();
-        scene.add( stars );
+        addToScene( stars );
     }
 }
+
+export default $(Solarsys);
