@@ -34,12 +34,10 @@ const data = {
     }
 }; 
 
-const KEY_FRAME_MIN_INTERVAL = 0.05;
 const DEFAULT_CAM_SPEED = 696000000;
 class Solarsys extends Component {
     constructor(props) {
         super(props);
-        this.cameras = {};
 
         // SET SUN
         this.sun = addPlanet(props.addToScene, Object.assign({},data.sun));
@@ -52,21 +50,14 @@ class Solarsys extends Component {
     
         starForge(props.addToScene);   // to do refactor
 
-        this.cameraStateHandler = this.cameraStateHandler.bind(this);
         this.loopTick           = this.loopTick.bind(this);
-        this.manageCameras      = this.manageCameras.bind(this);
         this.handleSceneChildren = this.handleSceneChildren.bind(this);
 
         props.onReady(this.loopTick);// to do move to better place
     }
 
     handleSceneChildren(children) {
-        return children.map(child=> {
-            if(child.constructor.name=='VNode' && child.nodeName.name=='Camera') {
-                child.attributes.onReadyStateChange = this.cameraStateHandler;
-            }
-            return child;
-        });
+        return children;
     }
     
 	render(props, state) {
@@ -77,35 +68,9 @@ class Solarsys extends Component {
         }
     }
 
-    cameraStateHandler(id, camera, render) {
-        this.cameras[id] = render ? {camera, render} : undefined; // TO DO refactor
-    }
-
-    manageCameras() { // to do Refactor
-        const cameras = [];
-        if(this.cameras['MAIN']) {
-            cameras.push(this.cameras['MAIN']); // => this.cameras['MAIN'].render(this.scene, this.cameras['MAIN'].camera)
-            // updateLabelsPos({mercury, venus});
-            // //panel
-            // updateCameraStats(camera);
-
-            // var delta = clock.getDelta();
-            // this.controls.movementSpeed = this.camSpeed * delta;
-            // this.controls.update( delta );
-            // console.log(delta); // WTF?!
-        }
-        return cameras;
-    }
-
     loopTick(clock){
         this.sun.rotation.x += 0.01;
         this.sun.rotation.y += 0.01;
-
-        if(clock.elapsedTime - this.state.lastKeyFrame > KEY_FRAME_MIN_INTERVAL) {
-            this.setState({lastKeyFrame: clock.elapsedTime})
-        }
-
-        return this.manageCameras();
     }
 }
 

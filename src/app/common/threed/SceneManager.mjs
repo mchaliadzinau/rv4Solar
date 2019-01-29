@@ -2,21 +2,28 @@ import { Component } from '/@/preact.mjs';
 import * as THREE from '/@/three.mjs';
 import {$,_,div} from '/utils/pelems.mjs';
 
+const KEY_FRAME_MIN_INTERVAL = 0.05;
+
 class SceneManager extends Component {
 	constructor(props) {
         super(props);
         
         this.scenes = {};
-
         this.state = {
-            loopIsSpinning: false
+            loopIsSpinning: false,
+            lastKeyFrame: 0
         };
 
         this.handleChildren = this.handleChildren.bind(this);
+        this.cameraStateHandler = this.cameraStateHandler.bind(this);
 
 	}
 	componentDidMount() {
 		
+    }
+
+    cameraStateHandler(id, sceneId, camera, render) {
+        this.scenes[sceneId].cameras[id] = render ? {camera, render} : undefined;  // TO DO refactor to make scene.cameras of array type
     }
 
     handleChildren(children) {
@@ -24,7 +31,7 @@ class SceneManager extends Component {
             if(!child.attributes) return child; // DEBUG
             const sceneId = child.attributes.sceneId;
 
-            this.scenes[sceneId] = this.scenes[sceneId] ? this.scenes[sceneId] : {};
+            this.scenes[sceneId] = this.scenes[sceneId] ? this.scenes[sceneId] : {cameras: {}};
             this.scenes[sceneId].instance = this.scenes[sceneId].instance ? this.scenes[sceneId].instance : new THREE.Scene();;
             
             child.attributes.onclick=(e)=>{alert(e)};
@@ -34,7 +41,14 @@ class SceneManager extends Component {
                 this.scenes[sceneId].loopFn = loopFnRef;
                 this.runLoop();
             } 
-
+            // hnalde scene cameras
+            child.children.map(c=> {
+                if(c.constructor.name=='VNode' && c.nodeName.name=='Camera') {
+                    c.attributes.sceneId = sceneId;
+                    c.attributes.onReadyStateChange = this.cameraStateHandler;
+                }
+                return c;
+            });
 
             return child;
         });
@@ -67,24 +81,26 @@ class SceneManager extends Component {
     loopChangePhase(sceneIds, clock) {
         sceneIds.forEach(id=>{
             if(this.scenes[id].isReady) {
-                const cameras = this.scenes[id].loopFn(clock);
-                this.scenes[id].updatedCameras = cameras; 
-            }
+                const res = this.scenes[id].loopFn(clock);            }
         });
     }
     
     loopRenderPhase(sceneIds, clock) {
         sceneIds.forEach(sceneId=>{
-            if(this.scenes[sceneId].isReady && this.scenes[sceneId].updatedCameras) {
-                const scene = this.scenes[sceneId].instance;
-                const cameras = this.scenes[sceneId].updatedCameras;
-                for(let i = 0; i < cameras.length; i++) {
-                    const cam = cameras[i];
-                    cam.render(scene, cam.camera)
+            if(this.scenes[sceneId].isReady && this.scenes[sceneId].cameras) {
+                const scene = this.scenes[sceneId];
+                const cameraIds = Object.keys(scene.cameras); // TO DO refactor to make scene.cameras of array type
+                for(let i = 0; i < cameraIds.length; i++) {
+                    const cam = scene.cameras[cameraIds[i]];
+                    cam.render(scene.instance, cam.camera)
                 }
                 // this.props.onLoopRenderPhase(sceneId, scene.instance, scene.updatedCameras); // TO DO try to avoid passing scene, camera references outside SceneManager
             }
         });
+
+        if(clock.elapsedTime - this.state.lastKeyFrame > KEY_FRAME_MIN_INTERVAL) {
+            this.setState({lastKeyFrame: clock.elapsedTime})
+        }
     }
 }
 

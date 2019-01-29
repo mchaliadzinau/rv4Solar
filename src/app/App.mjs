@@ -26,7 +26,7 @@ export default class App extends Component {
 		this.renderDisplay 			= this.renderDisplay.bind(this);
 		this.state = {
 			isSolarReady: false,
-			lastKeyFrame: 0
+			// lastKeyFrame: 0
 		}
 
 	}
