@@ -2,6 +2,7 @@ import { createElement } from '/@/preact.mjs';
 
 function childCheck(child) {
     return typeof child !== 'undefined' && ( 
+        child === null                      || 
         typeof child === "boolean"          || 
         typeof child === "string"           || 
         typeof child === "number"           || 
