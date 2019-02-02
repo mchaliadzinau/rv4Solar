@@ -8,7 +8,7 @@ class SceneManager extends Component {
 	constructor(props) {
         super(props);
         
-        this.scenes = {};
+        this.scenes = {}; // scenes[sceneId] = {instance, cameras: {}}
         this.state = {
             loopIsSpinning: false,
             lastKeyFrame: 0
@@ -42,8 +42,8 @@ class SceneManager extends Component {
                 this.runLoop();
             } 
             // hnalde scene cameras
-            child.children.map(c=> {
-                if(c.constructor.name=='VNode' && c.nodeName.name=='Camera') {
+            child.children.map(c=> { // TO DO Render inside SceneManager to avoid overriding inside Scene components
+                if(c && c.constructor.name=='VNode' && c.nodeName.name=='Camera') {
                     c.attributes.sceneId = sceneId;
                     c.attributes.onReadyStateChange = this.cameraStateHandler;
                 }

@@ -2,11 +2,11 @@ import { Component } from '/@/preact.mjs';
 import * as THREE from '/@/three.mjs';
 import { $, div } from '/utils/pelems.mjs';
 
+const CLIP_FAR = 696000*1000000;
 class Camera extends Component {
     constructor(props) {
         super(props); 
-        const {id, x, y, z, width, height, clipFar, onReady} = {...this.props};
-        const CLIP_FAR = 696000*1000000;
+        const {id, x, y, z, width, height, clipFar} = {...this.props};
         
         this.camera = new THREE.PerspectiveCamera( 75,  width/height, 0.1, clipFar || CLIP_FAR );
         // TO DO refactor to more suitable component
@@ -22,16 +22,16 @@ class Camera extends Component {
     }
 
     componentDidMount() {
-        if(this.camera && this.props.renderer) {
-            this.props.renderer.setSize( this.props.width, this.props.height );
-            this.props.onReadyStateChange(this.props.id, this.props.sceneId, this.camera, (scene,camera)=>this.props.renderer.render(scene,camera));
+        if(this.camera && this.props.onRender) {
+            // this.props.renderer.setSize( this.props.width, this.props.height );
+            this.props.onReadyStateChange(this.props.id, this.props.sceneId, this.camera, this.props.onRender);
         }
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if(this.camera && !prevProps.renderer && this.props.renderer) {
-            this.props.renderer.setSize( this.props.width, this.props.height );
-            this.props.onReadyStateChange(this.props.id, this.props.sceneId, this.camera, this.props.renderer.render);
+        if(this.camera && !prevProps.onRender && this.props.onRender) {
+            // this.props.renderer.setSize( this.props.width, this.props.height );
+            this.props.onReadyStateChange(this.props.id, this.props.sceneId, this.camera, this.props.onRender);
         }
     }
 

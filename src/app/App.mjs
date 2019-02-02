@@ -6,6 +6,8 @@ import { setupOverlay } from '/utils/init-overlay.js';
 import CamPanel from './common/threed/camPanel/CamPanel.mjs';
 import FlyControls from '/utils/fly-controls.js';
 import * as THREE from '/@/three.mjs';
+import View from './common/threed/View.mjs';
+
 
 import SceneManager from './common/threed/SceneManager.mjs';
 
@@ -13,19 +15,19 @@ export default class App extends Component {
 	constructor(props) {
 		super(props);
 
-		this.renderers = {
-			'1-MAIN': new THREE.WebGLRenderer() // TO DO Refactor renders instantiation to <Display/> component 
-		};
+		this.renderers = {};
 
 		this.onLoopRenderPhase = this.onLoopRenderPhase.bind(this);
 
 		this.setup 					= this.setup.bind(this)
 		this.setupCameraControls 	= this.setupCameraControls.bind(this)
-		this.setupCanvas 			= this.setupCanvas.bind(this);
 		// this.initLoop 				= this.initLoop.bind(this)
 		this.renderDisplay 			= this.renderDisplay.bind(this);
+		this.onViewUpdate 			= this.onViewUpdate.bind(this);
+
 		this.state = {
 			isSolarReady: false,
+			viewsReady: false	// TO DO Refactor
 			// lastKeyFrame: 0
 		}
 
@@ -72,14 +74,13 @@ export default class App extends Component {
 		});
 	}
 
-	setupCanvas(ref) {
-		if(ref) {
-			ref.appendChild( this.renderers['1-MAIN'].domElement );
-		}
-	}
-
 	onLoopRenderPhase(sceneId, scene, updatedCameras) {
 
+	}
+
+	onViewUpdate(sceneId, cameraId, render) {
+		this.renderers[`${sceneId}-${cameraId}`] = render;
+		this.setState({viewsReady: true});	// TO DO Refactor
 	}
 
 	render(props, state) {
@@ -95,20 +96,24 @@ export default class App extends Component {
 					Solarsys({
 							// render: this.renderDisplay, 
 							sceneId:1
-						}
-						,Camera({
+						}, 
+						state.viewsReady && !!this.renderers['1-MAIN'] && Camera({
 							id: 'MAIN', 
-							renderer: this.renderers['1-MAIN'],
-
+							onRender: this.renderers['1-MAIN'],
+							clipFar: 696000*1000000,
 							z: -12507.576005649345 + 65804560.09749729, y: 1059308.133517735, x: 43571.53266016538,
-
 							width: window.innerWidth, 
 							height: window.innerHeight, 
 						})
-					),
-
-					div({ref: this.setupCanvas, class:'canvas-wrapper'})
-				)
+					)
+				),
+				View({
+					sceneId: 1,
+					cameraId: 'MAIN',
+					width: window.innerWidth,
+					height: window.innerHeight,
+					onUpdate: this.onViewUpdate
+				})
 				// ,CamPanel({
 				// 	x, y, z, 
 				// 	_x, _y, _z,
