@@ -8,7 +8,7 @@ class SceneManager extends Component {
 	constructor(props) {
         super(props);
         
-        this.scenes = {}; // scenes[sceneId] = {instance, cameras: {}}
+        this.scenes = {}; // scenes[sceneId] = {instance, cameras: {}, state}
         this.state = {
             loopIsSpinning: false,
             lastKeyFrame: 0
@@ -93,7 +93,7 @@ class SceneManager extends Component {
                 const cameraIds = Object.keys(scene.cameras); // TO DO refactor to make scene.cameras of array type
                 for(let i = 0; i < cameraIds.length; i++) {
                     const cam = scene.cameras[cameraIds[i]];
-                    cam.render(scene.instance, cam.camera, scene.state)
+                    cam.render(scene.instance, cam.camera, clock, scene.state)
                 }
                 // this.props.onLoopRenderPhase(sceneId, scene.instance, scene.updatedCameras); // TO DO try to avoid passing scene, camera references outside SceneManager
             }

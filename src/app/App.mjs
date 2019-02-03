@@ -79,29 +79,29 @@ export default class App extends Component {
 
 	}
 
-	onViewUpdate(sceneId, cameraId, render) {
-		this.renderers[`${sceneId}-${cameraId}`] = render;
+	onViewUpdate(sceneId, cameraId, render, width, height) {
+		this.renderers[`${sceneId}-${cameraId}`] = {render, width, height};
 		this.setState({viewsReady: true});	// TO DO Refactor
 	}
 
-	renderCamera(sceneId, cameraId, position, resolution, clipFar) {
+	renderCamera(sceneId, cameraId, position, clipFar) {
 		const {x,y,z} = {...position};
-		const {width, height} = {...resolution};
 		const rendererId = `${sceneId}-${cameraId}`;
 		const renderer = this.renderers[rendererId];
+		const {width, height} = {...renderer};
 		return this.state.viewsReady && !!renderer && Camera({
-			id: 'MAIN', onRender: renderer,
+			id: cameraId, onRender: renderer.render,
 			clipFar, x, y, z, 
 			width, height
 		})
 	}
 
 	render(props, state) {
-		const position = this.camera ? this.camera.position : {};
-		const rotation = this.camera ? this.camera.rotation : {};
-		const {x,y,z} = position;
-		const {_x,_y,_z} = rotation;
-		const inertiaEnabled = this.controls ?  this.controls.inertiaEnabled : false;
+		// const position = this.camera ? this.camera.position : {};
+		// const rotation = this.camera ? this.camera.rotation : {};
+		// const {x,y,z} = position;
+		// const {_x,_y,_z} = rotation;
+		// const inertiaEnabled = this.controls ?  this.controls.inertiaEnabled : false;
 		return (
 			div(_,
 				// $(Solarsys)({render: this.renderDisplay}),
@@ -110,7 +110,11 @@ export default class App extends Component {
 							// render: this.renderDisplay, 
 							sceneId:1
 						}, 
-						this.renderCamera(1,'MAIN',{z:-12507.576005649345+65804560.09749729,y:1059308.133517735,x:43571.53266016538}, {width:window.innerWidth,height:window.innerHeight}, 696000*1000000)
+						this.renderCamera(
+							1,'MAIN',
+							{z:-12507.576005649345+65804560.09749729,y:1059308.133517735,x:43571.53266016538}, 
+							696000*1000000
+						)
 					)
 				),
 				View({
@@ -118,7 +122,8 @@ export default class App extends Component {
 					cameraId: 'MAIN',
 					width: window.innerWidth,
 					height: window.innerHeight,
-					onUpdate: this.onViewUpdate
+					onUpdate: this.onViewUpdate,
+					render: canvas => (div({className:'view'},canvas)) // can be omitted if only canvas is required
 				})
 				// ,CamPanel({
 				// 	x, y, z, 
