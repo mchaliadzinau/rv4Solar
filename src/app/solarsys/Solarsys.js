@@ -52,8 +52,6 @@ class Solarsys extends Component {
 
         this.loopTick           = this.loopTick.bind(this);
         this.handleSceneChildren = this.handleSceneChildren.bind(this);
-
-        props.onReady(this.loopTick);// to do move to better place
     }
 
     handleSceneChildren(children) {

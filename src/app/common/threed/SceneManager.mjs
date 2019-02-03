@@ -36,10 +36,15 @@ class SceneManager extends Component {
             
             child.attributes.onclick=(e)=>{alert(e)};
             child.attributes.addToScene = (obj)=>this.scenes[sceneId].instance.add(obj); // TO DO make intermediate add function inside SceneManager to be able to track scene changes
-            child.attributes.onReady = (loopFnRef) => {
-                this.scenes[sceneId].isReady = true;
-                this.scenes[sceneId].loopFn = loopFnRef;
-                this.runLoop();
+            // on scene ready it returns reference to loopTick(clock) function which should be called every loop to enable scene control by SceneComponent
+            child.attributes.ref = (ref) => {
+                if(ref && ref.loopTick) {
+                    this.scenes[sceneId].isReady = true;
+                    this.scenes[sceneId].loopFn = ref.loopTick;
+                    this.runLoop();
+                } else {
+                    ref && console.warn(ref.constructor.name, 'loopTick method is not defined!')
+                }
             } 
             // hnalde scene cameras
             child.children.map(c=> { // TO DO Render inside SceneManager to avoid overriding inside Scene components
