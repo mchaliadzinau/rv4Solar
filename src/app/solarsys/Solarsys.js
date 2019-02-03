@@ -71,6 +71,8 @@ class Solarsys extends Component {
     loopTick(clock){
         this.sun.rotation.x += 0.01;
         this.sun.rotation.y += 0.01;
+
+        return {sunRotation: this.sun.rotation}
     }
 }
 

@@ -12,8 +12,9 @@ class View extends Component {
 
     // implement onupdate with render = null
     
-    renderHandler(scene,camera) {
-        this.renderer.render(scene,camera)
+    renderHandler(scene,camera, sceneData) {
+        this.renderer.render(scene,camera);
+        console.log(sceneData);
     }
 
     setupCanvas(ref) {

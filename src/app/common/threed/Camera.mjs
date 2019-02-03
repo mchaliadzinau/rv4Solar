@@ -16,9 +16,9 @@ class Camera extends Component {
         // }
 
         // Set camera position
-        this.camera.position.z = z;
-        this.camera.position.y = y;
-        this.camera.position.x = x;
+        this.camera.position.z = z || 0;
+        this.camera.position.y = y || 0;
+        this.camera.position.x = x || 0;
     }
 
     componentDidMount() {

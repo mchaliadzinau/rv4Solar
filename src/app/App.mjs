@@ -23,6 +23,7 @@ export default class App extends Component {
 		this.setupCameraControls 	= this.setupCameraControls.bind(this)
 		// this.initLoop 				= this.initLoop.bind(this)
 		this.renderDisplay 			= this.renderDisplay.bind(this);
+		this.renderCamera 			= this.renderCamera.bind(this);
 		this.onViewUpdate 			= this.onViewUpdate.bind(this);
 
 		this.state = {
@@ -83,6 +84,18 @@ export default class App extends Component {
 		this.setState({viewsReady: true});	// TO DO Refactor
 	}
 
+	renderCamera(sceneId, cameraId, position, resolution, clipFar) {
+		const {x,y,z} = {...position};
+		const {width, height} = {...resolution};
+		const rendererId = `${sceneId}-${cameraId}`;
+		const renderer = this.renderers[rendererId];
+		return this.state.viewsReady && !!renderer && Camera({
+			id: 'MAIN', onRender: renderer,
+			clipFar, x, y, z, 
+			width, height
+		})
+	}
+
 	render(props, state) {
 		const position = this.camera ? this.camera.position : {};
 		const rotation = this.camera ? this.camera.rotation : {};
@@ -97,14 +110,7 @@ export default class App extends Component {
 							// render: this.renderDisplay, 
 							sceneId:1
 						}, 
-						state.viewsReady && !!this.renderers['1-MAIN'] && Camera({
-							id: 'MAIN', 
-							onRender: this.renderers['1-MAIN'],
-							clipFar: 696000*1000000,
-							z: -12507.576005649345 + 65804560.09749729, y: 1059308.133517735, x: 43571.53266016538,
-							width: window.innerWidth, 
-							height: window.innerHeight, 
-						})
+						this.renderCamera(1,'MAIN',{z:-12507.576005649345+65804560.09749729,y:1059308.133517735,x:43571.53266016538}, {width:window.innerWidth,height:window.innerHeight}, 696000*1000000)
 					)
 				),
 				View({
