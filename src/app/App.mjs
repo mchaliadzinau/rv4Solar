@@ -4,7 +4,6 @@ import Solarsys from './solarsys/Solarsys.js';
 import Camera from './common/threed/Camera.mjs';
 import { setupOverlay } from '/utils/init-overlay.js';
 import CamPanel from './common/threed/camPanel/CamPanel.mjs';
-import FlyControls from '/utils/fly-controls.js';
 import * as THREE from '/@/three.mjs';
 import View from './common/threed/View.mjs';
 
@@ -20,7 +19,6 @@ export default class App extends Component {
 		this.onLoopRenderPhase = this.onLoopRenderPhase.bind(this);
 
 		this.setup 					= this.setup.bind(this)
-		this.setupCameraControls 	= this.setupCameraControls.bind(this)
 		// this.initLoop 				= this.initLoop.bind(this)
 		this.renderDisplay 			= this.renderDisplay.bind(this);
 		this.renderCamera 			= this.renderCamera.bind(this);
@@ -48,19 +46,6 @@ export default class App extends Component {
 		this.setState({isSolarReady: true});
 	}
 
-	setupCameraControls(camera, renderer) {
-        //
-        this.camSpeed = DEFAULT_CAM_SPEED;
-        var controls = new FlyControls( camera );
-            controls.movementSpeed = 1000;
-            controls.domElement = renderer.domElement;
-            controls.rollSpeed = Math.PI / 24;
-            controls.autoForward = false;
-            controls.dragToLook = false; // FIXME // on true direction fails after hitting input
-			controls.inertiaEnabled = false;
-		return controls;
-	}
-
 	renderDisplay(data, sun, venus, mercury) {
 		this.objects = {sun, venus, mercury};
 		return $(View)({
@@ -79,8 +64,8 @@ export default class App extends Component {
 
 	}
 
-	onViewUpdate(sceneId, cameraId, render, width, height) {
-		this.renderers[`${sceneId}-${cameraId}`] = {render, width, height};
+	onViewUpdate(sceneId, cameraId, render, width, height, domElement) {
+		this.renderers[`${sceneId}-${cameraId}`] = {render, width, height, domElement};
 		this.setState({viewsReady: true});	// TO DO Refactor
 	}
 
@@ -88,11 +73,12 @@ export default class App extends Component {
 		const {x,y,z} = {...position};
 		const rendererId = `${sceneId}-${cameraId}`;
 		const renderer = this.renderers[rendererId];
-		const {width, height} = {...renderer};
+		const {width, height, domElement} = {...renderer};
 		return this.state.viewsReady && !!renderer && Camera({
 			id: cameraId, onRender: renderer.render,
 			clipFar, x, y, z, 
-			width, height
+			width, height, 
+			domElement
 		})
 	}
 

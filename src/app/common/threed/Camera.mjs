@@ -24,14 +24,14 @@ class Camera extends Component {
     componentDidMount() {
         if(this.camera && this.props.onRender) {
             // this.props.renderer.setSize( this.props.width, this.props.height );
-            this.props.onReadyStateChange(this.props.id, this.props.sceneId, this.camera, this.props.onRender);
+            this.props.onReadyStateChange(this.props.id, this.props.sceneId, this.camera, this.props.onRender, this.props.domElement);
         }
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if(this.camera && !prevProps.onRender && this.props.onRender) {
             // this.props.renderer.setSize( this.props.width, this.props.height );
-            this.props.onReadyStateChange(this.props.id, this.props.sceneId, this.camera, this.props.onRender);
+            this.props.onReadyStateChange(this.props.id, this.props.sceneId, this.camera, this.props.onRender, this.props.domElement);
         }
     }
 

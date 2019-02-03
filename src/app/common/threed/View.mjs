@@ -20,7 +20,7 @@ class View extends Component {
     
     renderHandler(scene,camera, clock, sceneState) {
         this.renderer.render(scene,camera);
-        console.log(sceneState);
+        // console.log(sceneState);
         if(clock.elapsedTime - this.state.lastKeyFrame > KEY_FRAME_MIN_INTERVAL) {
             this.setState({lastKeyFrame: clock.elapsedTime})
         }
@@ -30,7 +30,7 @@ class View extends Component {
         const {sceneId, cameraId, width, height} = {...this.props};
         this.renderer.setSize( width, height );
         ref.appendChild( this.renderer.domElement );
-        this.props.onUpdate(sceneId, cameraId, this.renderHandler, width, height)
+        this.props.onUpdate(sceneId, cameraId, this.renderHandler, width, height, this.renderer.domElement)
     }
 
     renderWrapper(props) {

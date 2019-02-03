@@ -22,8 +22,9 @@ class SceneManager extends Component {
 		
     }
 
-    cameraStateHandler(id, sceneId, camera, render) {
-        this.scenes[sceneId].cameras[id] = render ? {camera, render} : undefined;  // TO DO refactor to make scene.cameras of array type
+    cameraStateHandler(id, sceneId, camera, render, domElement) {
+        this.scenes[sceneId].cameras[id] = render ? {camera, render, domElement} : undefined;  // TO DO refactor to make scene.cameras of array type
+        this.scenes[sceneId].setupCamera(id, camera, domElement);
     }
 
     handleChildren(children) {
@@ -38,12 +39,14 @@ class SceneManager extends Component {
             child.attributes.addToScene = (obj)=>this.scenes[sceneId].instance.add(obj); // TO DO make intermediate add function inside SceneManager to be able to track scene changes
             // on scene ready it returns reference to loopTick(clock) function which should be called every loop to enable scene control by SceneComponent
             child.attributes.ref = (ref) => {
-                if(ref && ref.loopTick) {
+                if(ref && ref.loopTick && ref.setupCamera) {
                     this.scenes[sceneId].isReady = true;
                     this.scenes[sceneId].loopFn = ref.loopTick;
+                    this.scenes[sceneId].setupCamera = ref.setupCamera;
                     this.runLoop();
                 } else {
-                    ref && console.warn(ref.constructor.name, 'loopTick method is not defined!')
+                    ref && !ref.loopTick && console.warn(ref.constructor.name, 'loopTick method is not defined!');
+                    ref && !ref.setupCamera && console.warn(ref.constructor.name, 'setupCamera method is not defined!')
                 }
             } 
             // hnalde scene cameras

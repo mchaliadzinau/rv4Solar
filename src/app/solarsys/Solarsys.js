@@ -1,6 +1,7 @@
 import { Component } from '/@/preact.mjs';
 import * as THREE from '/@/three.mjs';
 import { $, _, div } from '/utils/pelems.mjs';
+import FlyControls from '/utils/fly-controls.js';
 
 
 const AU2KM = 149598000;
@@ -52,6 +53,7 @@ class Solarsys extends Component {
 
         this.loopTick           = this.loopTick.bind(this);
         this.handleSceneChildren = this.handleSceneChildren.bind(this);
+        this.setupCamera         = this.setupCamera.bind(this);
     }
 
     handleSceneChildren(children) {
@@ -70,7 +72,30 @@ class Solarsys extends Component {
         this.sun.rotation.x += 0.01;
         this.sun.rotation.y += 0.01;
 
+        if(this.mainCamControls) {
+            const delta = clock.getDelta();
+            this.mainCamControls.movementSpeed = (this.camSpeed || DEFAULT_CAM_SPEED) * delta;
+            this.mainCamControls.update( delta );
+        }
+
         return {sunRotation: this.sun.rotation}
+    }
+
+    setupCamera(cameraId, camera, domElement) {
+        console.log('setupCamera:', cameraId);
+        switch(cameraId) {
+            case "MAIN": {
+                this.camSpeed = DEFAULT_CAM_SPEED;
+                let controls = new FlyControls( camera );
+                    controls.movementSpeed = 1000;
+                    controls.domElement = domElement;
+                    controls.rollSpeed = Math.PI / 24;
+                    controls.autoForward = false;
+                    controls.dragToLook = false; // FIXME // on true direction fails after hitting input
+                    controls.inertiaEnabled = false;
+                this.mainCamControls = controls;
+            }
+        }
     }
 }
 
