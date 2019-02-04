@@ -7,6 +7,7 @@ class View extends Component {
     constructor(props) {
         super(props);
         this.renderer = new THREE.WebGLRenderer();
+        
         this.renderHandler = this.renderHandler.bind(this);
         this.setupCanvas = this.setupCanvas.bind(this);
         this.renderWrapper = this.renderWrapper.bind(this);

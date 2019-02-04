@@ -81,8 +81,10 @@ class Solarsys extends Component {
         return {
             sunRotation: this.sun.rotation,
             sunPosition: this.sun.position,
-            mainCamRotation: this.mainCamControls ? this.mainCamControls.object.rotation : null,
-            mainCamPosition: this.mainCamControls ? this.mainCamControls.object.position : null,
+            mainCamRotation:    this.mainCamControls ? this.mainCamControls.object.rotation : null,
+            mainCamPosition:    this.mainCamControls ? this.mainCamControls.object.position : null,
+            mainCamSpeed:       this.mainCamControls ? this.mainCamControls.movementSpeed   : 0,
+            mainCamInertia:     this.mainCamControls ? this.mainCamControls.inertiaEnabled  : false,
         }
     }
 
