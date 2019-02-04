@@ -82,6 +82,20 @@ export default class App extends Component {
 		})
 	}
 
+	renderPanelView(canvas, state) {
+		const {x,y,z} = state.mainCamPosition	 ? state.mainCamPosition : {};
+		const rotation = state.mainCamRotation	 ? state.mainCamRotation : {};
+		return div({className:'view'},
+			canvas, CamPanel({
+				x,y,z,
+				_x: rotation.x, _y: rotation.y, _z:rotation.z,
+				enableControls: true,
+				onCamSpeedChange: ()=>{},
+				onCamInertiaClick: ()=>{}
+			})
+		);
+	}
+
 	render(props, state) {
 		// const position = this.camera ? this.camera.position : {};
 		// const rotation = this.camera ? this.camera.rotation : {};
@@ -109,7 +123,7 @@ export default class App extends Component {
 					width: window.innerWidth,
 					height: window.innerHeight,
 					onUpdate: this.onViewUpdate,
-					render: canvas => (div({className:'view'},canvas)) // can be omitted if only canvas is required
+					render: this.renderPanelView // can be omitted if only canvas is required
 				})
 				// ,CamPanel({
 				// 	x, y, z, 

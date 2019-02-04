@@ -12,7 +12,8 @@ class View extends Component {
         this.renderWrapper = this.renderWrapper.bind(this);
 
         this.state = {
-            lastKeyFrame: 0
+            lastKeyFrame: 0,
+            sceneState: {}
         };
     }
 
@@ -22,7 +23,10 @@ class View extends Component {
         this.renderer.render(scene,camera);
         // console.log(sceneState);
         if(clock.elapsedTime - this.state.lastKeyFrame > KEY_FRAME_MIN_INTERVAL) {
-            this.setState({lastKeyFrame: clock.elapsedTime})
+            this.setState({
+                lastKeyFrame: clock.elapsedTime,
+                sceneState
+            })
         }
     }
 
@@ -40,7 +44,7 @@ class View extends Component {
 
 	render(props, state) {
         if(props.render) {
-            return props.render( this.renderWrapper(props) );
+            return props.render( this.renderWrapper(props), state.sceneState || {} );
         } else {
             return this.renderWrapper(props);
         }

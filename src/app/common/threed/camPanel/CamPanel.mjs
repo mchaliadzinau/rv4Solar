@@ -1,7 +1,7 @@
 import { Component } from '/@/preact.mjs';
 import { $, _, div, table, tr, td, h2 } from '/utils/pelems.mjs';
 
-const N_A = 'n/a';
+const N_A = 0;
 class CamPanel extends Component {
     constructor(props) {
 		super(props);
@@ -21,7 +21,7 @@ class CamPanel extends Component {
     }
 
     render(props, state) {
-        const {_x, _y, _z} = props;
+        const {_x, _y, _z} = {...props};
         const orientation = `x:${_x ? _x.toString().slice(0,10): N_A},y:${_y ? _y.toString().slice(0,10): N_A},z:${_z ?_z.toString().slice(0,10): N_A}`;
         return div({id:'panel-bottom'},
             table({style:'float:left'},

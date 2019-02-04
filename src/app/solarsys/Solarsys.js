@@ -78,7 +78,12 @@ class Solarsys extends Component {
             this.mainCamControls.update( delta );
         }
 
-        return {sunRotation: this.sun.rotation}
+        return {
+            sunRotation: this.sun.rotation,
+            sunPosition: this.sun.position,
+            mainCamRotation: this.mainCamControls ? this.mainCamControls.object.rotation : null,
+            mainCamPosition: this.mainCamControls ? this.mainCamControls.object.position : null,
+        }
     }
 
     setupCamera(cameraId, camera, domElement) {
@@ -86,7 +91,7 @@ class Solarsys extends Component {
         switch(cameraId) {
             case "MAIN": {
                 this.camSpeed = DEFAULT_CAM_SPEED;
-                let controls = new FlyControls( camera );
+                const controls = new FlyControls( camera );
                     controls.movementSpeed = 1000;
                     controls.domElement = domElement;
                     controls.rollSpeed = Math.PI / 24;
@@ -94,6 +99,10 @@ class Solarsys extends Component {
                     controls.dragToLook = false; // FIXME // on true direction fails after hitting input
                     controls.inertiaEnabled = false;
                 this.mainCamControls = controls;
+                if(false) {
+                    const helper = new THREE.CameraHelper( camera );
+                    this.props.addToScene(helper);
+                }
             }
         }
     }

@@ -9,11 +9,6 @@ class Camera extends Component {
         const {id, x, y, z, width, height, clipFar} = {...this.props};
         
         this.camera = new THREE.PerspectiveCamera( 75,  width/height, 0.1, clipFar || CLIP_FAR );
-        // TO DO refactor to more suitable component
-        // if(withHelper) {
-        //   const helper = new THREE.CameraHelper( camera );
-        //   scene.add(helper);
-        // }
 
         // Set camera position
         this.camera.position.z = z || 0;
