@@ -1,4 +1,4 @@
-import { Component } from '/@/preact.mjs';
+import { Component, h } from '/@/preact.mjs';
 import { $, _, div, table, tr, td, h2 } from '/utils/pelems.mjs';
 import Solarsys from './solarsys/Solarsys.js';
 import Camera from './common/threed/Camera.mjs';
@@ -10,7 +10,10 @@ import View from './common/threed/View.mjs';
 
 import SceneManager from './common/threed/SceneManager.mjs';
 
-export default class App extends Component {
+import { connect } from '/@/unistore/integrations/preact.mjs';
+import {actions} from '../stores/solarsys.store.mjs'
+
+class App extends Component {
 	constructor(props) {
 		super(props);
 
@@ -20,7 +23,6 @@ export default class App extends Component {
 
 		this.setup 					= this.setup.bind(this)
 		// this.initLoop 				= this.initLoop.bind(this)
-		this.renderDisplay 			= this.renderDisplay.bind(this);
 		this.renderCamera 			= this.renderCamera.bind(this);
 		this.onViewUpdate 			= this.onViewUpdate.bind(this);
 
@@ -33,7 +35,7 @@ export default class App extends Component {
 	}
 	componentDidMount() {
 		this.setState({ message:'rv4Solar project init!' });
-		// SolarInit();
+		this.props.increment();
 	}
 
 	setup(renderer, camera) {
@@ -44,20 +46,6 @@ export default class App extends Component {
 			camera
 		)
 		this.setState({isSolarReady: true});
-	}
-
-	renderDisplay(data, sun, venus, mercury) {
-		this.objects = {sun, venus, mercury};
-		return $(View)({
-			data, sun, venus, mercury,
-			camPos: {
-				z:data.sun.radius+65804560.09749729, y: data.sun.Y, x: data.sun.X
-			}, 
-			width: window.innerWidth, 
-			height: window.innerHeight, 
-			withHelper: false,
-			onDisplayReady: this.setup
-		});
 	}
 
 	onLoopRenderPhase(sceneId, scene, updatedCameras) {
@@ -74,6 +62,7 @@ export default class App extends Component {
 		const rendererId = `${sceneId}-${cameraId}`;
 		const renderer = this.renderers[rendererId];
 		const {width, height, domElement} = {...renderer};
+
 		return this.state.viewsReady && !!renderer && Camera({
 			id: cameraId, onRender: renderer.render,
 			clipFar, x, y, z, 
@@ -104,12 +93,8 @@ export default class App extends Component {
 		// const inertiaEnabled = this.controls ?  this.controls.inertiaEnabled : false;
 		return (
 			div(_,
-				// $(Solarsys)({render: this.renderDisplay}),
 				SceneManager({onLoopRenderPhase: this.onLoopRenderPhase},
-					Solarsys({
-							// render: this.renderDisplay, 
-							sceneId:1
-						}, 
+					Solarsys({sceneId:1}, 
 						this.renderCamera(
 							1,'MAIN',
 							{z:-12507.576005649345+65804560.09749729,y:1059308.133517735,x:43571.53266016538}, 
@@ -136,3 +121,5 @@ export default class App extends Component {
 		)
 	}
 }
+
+export default h(connect('count', actions)(App))
