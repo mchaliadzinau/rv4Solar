@@ -11,10 +11,12 @@ class View extends Component {
         this.renderHandler = this.renderHandler.bind(this);
         this.setupCanvas = this.setupCanvas.bind(this);
         this.renderWrapper = this.renderWrapper.bind(this);
+        this.onViewStateChanged = this.onViewStateChanged.bind(this);
 
         this.state = {
             lastKeyFrame: 0,
-            sceneState: {}
+            sceneState: {},
+            changedState: undefined
         };
     }
 
@@ -31,6 +33,18 @@ class View extends Component {
                 sceneState
             })
         }
+
+        if(this.state.changedState) {
+            const state = this.state.changedState;
+            this.setState({changedState: undefined});
+            return state;
+        } else {
+            return undefined;
+        }
+    }
+
+    onViewStateChanged(changedState) {
+        this.setState({changedState});
     }
 
     setupCanvas(ref) {
@@ -47,7 +61,7 @@ class View extends Component {
 
 	render(props, state) {
         if(props.render) {
-            return props.render( this.renderWrapper(props), state.sceneState || {} );
+            return props.render( this.renderWrapper(props), state.sceneState || {}, this.onViewStateChanged );
         } else {
             return this.renderWrapper(props);
         }

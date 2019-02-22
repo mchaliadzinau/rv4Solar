@@ -71,7 +71,7 @@ class App extends Component {
 		})
 	}
 
-	renderPanelView(canvas, state) {
+	renderPanelView(canvas, state, onViewStateChanged) {
 		const {x,y,z} = state.mainCamPosition	 ? state.mainCamPosition : {};
 		const rotation = state.mainCamRotation	 ? state.mainCamRotation : {};
 		return div({className:'view'},
@@ -79,8 +79,8 @@ class App extends Component {
 				x,y,z,
 				_x: rotation.x, _y: rotation.y, _z:rotation.z,
 				enableControls: true,
-				onCamSpeedChange: ()=>{},
-				onCamInertiaClick: ()=>{}
+				onCamSpeedChange: (movementSpeed)=>{onViewStateChanged({movementSpeed})},
+				onCamInertiaClick: (inertiaEnabled)=>{onViewStateChanged({inertiaEnabled})},
 			})
 		);
 	}

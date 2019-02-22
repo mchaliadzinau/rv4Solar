@@ -1,10 +1,8 @@
-import { Component } from '/@/preact.mjs';
 import * as THREE from '/@/three.mjs';
-import {$,_,div} from '/utils/pelems.mjs';
 
 const KEY_FRAME_MIN_INTERVAL = 0.05;
 
-class SceneManager extends Component {
+class SceneService {
 	constructor(props) {
         super(props);
         
@@ -18,9 +16,6 @@ class SceneManager extends Component {
         this.cameraStateHandler = this.cameraStateHandler.bind(this);
 
 	}
-	componentDidMount() {
-		
-    }
 
     cameraStateHandler(id, sceneId, camera, render, domElement) {
         this.scenes[sceneId].cameras[id] = render ? {camera, render, domElement} : undefined;  // TO DO refactor to make scene.cameras of array type
@@ -43,12 +38,10 @@ class SceneManager extends Component {
                     this.scenes[sceneId].isReady = true;
                     this.scenes[sceneId].loopFn = ref.loopTick;
                     this.scenes[sceneId].setupCamera = ref.setupCamera;
-                    this.scenes[sceneId].postRenderActionCallback = ref.postRenderActionCallback;
                     this.runLoop();
                 } else {
                     ref && !ref.loopTick && console.warn(ref.constructor.name, 'loopTick method is not defined!');
-                    ref && !ref.setupCamera && console.warn(ref.constructor.name, 'setupCamera method is not defined!');
-                    ref && !ref.postRenderActionCallback && console.warn(ref.constructor.name, 'postRenderActionCallback method is not defined!');
+                    ref && !ref.setupCamera && console.warn(ref.constructor.name, 'setupCamera method is not defined!')
                 }
             } 
             // hnalde scene cameras
@@ -103,8 +96,7 @@ class SceneManager extends Component {
                 const cameraIds = Object.keys(scene.cameras); // TO DO refactor to make scene.cameras of array type
                 for(let i = 0; i < cameraIds.length; i++) {
                     const cam = scene.cameras[cameraIds[i]];
-                    const postRenderAction = cam.render(scene.instance, cam.camera, clock, scene.state);
-                    postRenderAction && scene.postRenderActionCallback(cameraIds[i], postRenderAction);
+                    cam.render(scene.instance, cam.camera, clock, scene.state)
                 }
                 // this.props.onLoopRenderPhase(sceneId, scene.instance, scene.updatedCameras); // TO DO try to avoid passing scene, camera references outside SceneManager
             }

@@ -54,6 +54,7 @@ class Solarsys extends Component {
         this.loopTick           = this.loopTick.bind(this);
         this.handleSceneChildren = this.handleSceneChildren.bind(this);
         this.setupCamera         = this.setupCamera.bind(this);
+        this.postRenderActionCallback = this.postRenderActionCallback.bind(this);
     }
 
     handleSceneChildren(children) {
@@ -85,6 +86,16 @@ class Solarsys extends Component {
             mainCamPosition:    this.mainCamControls ? this.mainCamControls.object.position : null,
             mainCamSpeed:       this.mainCamControls ? this.mainCamControls.movementSpeed   : 0,
             mainCamInertia:     this.mainCamControls ? this.mainCamControls.inertiaEnabled  : false,
+        }
+    }
+
+    postRenderActionCallback(cameraId, state) {
+        switch(cameraId) {
+            case "MAIN": {
+                console.log('postRenderActionCallback', cameraId, state);
+                this.mainCamControls.inertiaEnabled = state.inertiaEnabled ? state.inertiaEnabled : this.mainCamControls.inertiaEnabled;
+                this.mainCamControls.movementSpeed  = state.movementSpeed ? state.movementSpeed : this.mainCamControls.movementSpeed;
+            }
         }
     }
 
