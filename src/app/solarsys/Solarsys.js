@@ -54,7 +54,19 @@ class Solarsys extends Component {
         this.loopTick           = this.loopTick.bind(this);
         this.handleSceneChildren = this.handleSceneChildren.bind(this);
         this.setupCamera         = this.setupCamera.bind(this);
-        this.postRenderActionCallback = this.postRenderActionCallback.bind(this);
+        this.viewActionCallback = this.viewActionCallback.bind(this);
+
+        this.sceneState = {
+            cameras: {
+                main: {
+                    position: null, rotation: null,
+                    speed: DEFAULT_CAM_SPEED, inertiaEnabled: false
+                }
+            },
+            entities: {
+                sun: {position: this.sun.position, rotation: this.sun.rotation}
+            }
+        };
     }
 
     handleSceneChildren(children) {
@@ -79,22 +91,15 @@ class Solarsys extends Component {
             this.mainCamControls.update( delta );
         }
 
-        return {
-            sunRotation: this.sun.rotation,
-            sunPosition: this.sun.position,
-            mainCamRotation:    this.mainCamControls ? this.mainCamControls.object.rotation : null,
-            mainCamPosition:    this.mainCamControls ? this.mainCamControls.object.position : null,
-            mainCamSpeed:       this.mainCamControls ? this.mainCamControls.movementSpeed   : 0,
-            mainCamInertia:     this.mainCamControls ? this.mainCamControls.inertiaEnabled  : false,
-        }
+        return this.sceneState;
     }
 
-    postRenderActionCallback(cameraId, state) {
+    viewActionCallback(cameraId, state) {
         switch(cameraId) {
             case "MAIN": {
-                console.log('postRenderActionCallback', cameraId, state);
+                console.log('viewActionCallback', cameraId, state);
                 this.mainCamControls.inertiaEnabled = state.inertiaEnabled ? state.inertiaEnabled : this.mainCamControls.inertiaEnabled;
-                this.mainCamControls.movementSpeed  = state.movementSpeed ? state.movementSpeed : this.mainCamControls.movementSpeed;
+                this.camSpeed                       = state.movementSpeed ? state.movementSpeed : this.camSpeed;
             }
         }
     }
@@ -112,6 +117,8 @@ class Solarsys extends Component {
                     controls.dragToLook = false; // FIXME // on true direction fails after hitting input
                     controls.inertiaEnabled = false;
                 this.mainCamControls = controls;
+                this.sceneState.cameras.main.position = this.mainCamControls.object.position;
+                this.sceneState.cameras.main.rotation = this.mainCamControls.object.rotation;
                 if(false) {
                     const helper = new THREE.CameraHelper( camera );
                     this.props.addToScene(helper);

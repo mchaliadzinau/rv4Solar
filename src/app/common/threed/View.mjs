@@ -26,8 +26,7 @@ class View extends Component {
         this.renderer.render(scene,camera);
         // console.log(sceneState);
         if(sceneState 
-            && (clock.elapsedTime - this.state.lastKeyFrame > KEY_FRAME_MIN_INTERVAL)
-            && this.state.sceneState !== sceneState) {
+            && (clock.elapsedTime - this.state.lastKeyFrame > KEY_FRAME_MIN_INTERVAL)) {
             this.setState({
                 lastKeyFrame: clock.elapsedTime,
                 sceneState

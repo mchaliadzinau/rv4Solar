@@ -20,9 +20,6 @@ class App extends Component {
 		this.renderers = {};
 
 		this.onLoopRenderPhase = this.onLoopRenderPhase.bind(this);
-
-		this.setup 					= this.setup.bind(this)
-		// this.initLoop 				= this.initLoop.bind(this)
 		this.renderCamera 			= this.renderCamera.bind(this);
 		this.onViewUpdate 			= this.onViewUpdate.bind(this);
 
@@ -36,16 +33,6 @@ class App extends Component {
 	componentDidMount() {
 		this.setState({ message:'rv4Solar project init!' });
 		this.props.increment();
-	}
-
-	setup(renderer, camera) {
-		this.camera = camera; // TEMPORAL fro CamPanel
-		this.controls = this.setupCameraControls(camera, renderer);
-		this.initLoop(
-			renderer, 
-			camera
-		)
-		this.setState({isSolarReady: true});
 	}
 
 	onLoopRenderPhase(sceneId, scene, updatedCameras) {
@@ -72,13 +59,15 @@ class App extends Component {
 	}
 
 	renderPanelView(canvas, state, onViewStateChanged) {
-		const {x,y,z} = state.mainCamPosition	 ? state.mainCamPosition : {};
-		const rotation = state.mainCamRotation	 ? state.mainCamRotation : {};
+		const {x,y,z} = state.cameras && state.cameras.main.position	 ? state.cameras.main.position : {};
+		const rotation = state.cameras && state.cameras.main.rotation ? state.cameras.main.rotation : {};
 		return div({className:'view'},
 			canvas, CamPanel({
 				x,y,z,
 				_x: rotation.x, _y: rotation.y, _z:rotation.z,
 				enableControls: true,
+				camSpeed: 	state.cameras && state.cameras.main.speed,
+				camInertia: state.cameras && state.cameras.main.inertiaEnabled,
 				onCamSpeedChange: (movementSpeed)=>{onViewStateChanged({movementSpeed})},
 				onCamInertiaClick: (inertiaEnabled)=>{onViewStateChanged({inertiaEnabled})},
 			})
@@ -86,11 +75,6 @@ class App extends Component {
 	}
 
 	render(props, state) {
-		// const position = this.camera ? this.camera.position : {};
-		// const rotation = this.camera ? this.camera.rotation : {};
-		// const {x,y,z} = position;
-		// const {_x,_y,_z} = rotation;
-		// const inertiaEnabled = this.controls ?  this.controls.inertiaEnabled : false;
 		return (
 			div(_,
 				SceneManager({onLoopRenderPhase: this.onLoopRenderPhase},

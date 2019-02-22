@@ -43,12 +43,12 @@ class SceneManager extends Component {
                     this.scenes[sceneId].isReady = true;
                     this.scenes[sceneId].loopFn = ref.loopTick;
                     this.scenes[sceneId].setupCamera = ref.setupCamera;
-                    this.scenes[sceneId].postRenderActionCallback = ref.postRenderActionCallback;
+                    this.scenes[sceneId].viewActionCallback = ref.viewActionCallback;
                     this.runLoop();
                 } else {
                     ref && !ref.loopTick && console.warn(ref.constructor.name, 'loopTick method is not defined!');
                     ref && !ref.setupCamera && console.warn(ref.constructor.name, 'setupCamera method is not defined!');
-                    ref && !ref.postRenderActionCallback && console.warn(ref.constructor.name, 'postRenderActionCallback method is not defined!');
+                    ref && !ref.viewActionCallback && console.warn(ref.constructor.name, 'viewActionCallback method is not defined!');
                 }
             } 
             // hnalde scene cameras
@@ -104,7 +104,7 @@ class SceneManager extends Component {
                 for(let i = 0; i < cameraIds.length; i++) {
                     const cam = scene.cameras[cameraIds[i]];
                     const postRenderAction = cam.render(scene.instance, cam.camera, clock, scene.state);
-                    postRenderAction && scene.postRenderActionCallback(cameraIds[i], postRenderAction);
+                    postRenderAction && scene.viewActionCallback(cameraIds[i], postRenderAction);
                 }
                 // this.props.onLoopRenderPhase(sceneId, scene.instance, scene.updatedCameras); // TO DO try to avoid passing scene, camera references outside SceneManager
             }
