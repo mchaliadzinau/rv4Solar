@@ -2,52 +2,27 @@ import { Component } from '/@/preact.mjs';
 import * as THREE from '/@/three.mjs';
 import { $, _, div } from '/utils/pelems.mjs';
 import FlyControls from '/utils/fly-controls.js';
-
+import {getCurrentPositions, bodyIds} from './SolarsysService.mjs';
 
 const AU2KM = 149598000;
 const SOLAR_RADIUS = 696000;
-const data = {
-    _updatedAt: '16 August 2018 12:00:00',
-    sun: {
-        label: 'Sun',
-        color: 'red',
-        radius: 696000,
-        photosphereRadius: 696500,
-		"X": 43571.53266016538,
-		"Y": 1059308.133517735,
-		"Z": -12507.576005649345,
-    },
-    mercury: {
-        label: 'Mercury',
-        color: 'gray',
-        radius: 2440,
-		"X": parseFloat('5.380456009749729E+07'),
-		"Y": parseFloat('-1.338060080030250E+07'),
-		"Z": parseFloat('-6.124385517224120E+06'),
-    },
-    venus: {
-        label: 'Venus',
-        color: 'yellow',
-        radius: 6051, // X =  Y = Z =
-		"X": parseFloat('1.271345127229626E-01')  * AU2KM ,
-		"Y": parseFloat('-7.090862683787544E-01') * AU2KM,
-		"Z": parseFloat('-1.722741515705422E-02') * AU2KM,
-    }
-}; 
 
 const DEFAULT_CAM_SPEED = 696000000;
 class Solarsys extends Component {
     constructor(props) {
         super(props);
-
+        
+        const data = getCurrentPositions();
+        this.bodies     = data.positions;
+        this.interval   = data.interval;
         // SET SUN
-        this.sun = addPlanet(props.addToScene, Object.assign({},data.sun));
+        this.bodies[0].$instance = addPlanet(props.addToScene, Object.assign({}, this.bodies[0]));
         // SET MERCURY
-        this.mercury = addPlanet(props.addToScene, Object.assign({},data.mercury));
-        createOrbitVisualization(props.addToScene, Object.assign({},data.sun), Object.assign({},data.mercury));
+        this.bodies[1].$instance = addPlanet(props.addToScene, Object.assign({}, this.bodies[1]));
+        createOrbitVisualization(props.addToScene, Object.assign({}, this.bodies[0].coordinates[0]), Object.assign({}, this.bodies[1].coordinates[0]));
         // SET VENUS
-        this.venus = addPlanet(props.addToScene, Object.assign({},data.venus));
-        createOrbitVisualization(props.addToScene, Object.assign({},data.sun), Object.assign({},data.venus));
+        this.bodies[2].$instance = addPlanet(props.addToScene, Object.assign({}, this.bodies[2]));
+        createOrbitVisualization(props.addToScene, Object.assign({}, this.bodies[0].coordinates[0]), Object.assign({}, this.bodies[2].coordinates[0]));
     
         starForge(props.addToScene);   // to do refactor
 
@@ -64,7 +39,7 @@ class Solarsys extends Component {
                 }
             },
             entities: {
-                sun: {position: this.sun.position, rotation: this.sun.rotation}
+                sun: {position: this.bodies[0].$instance.position, rotation: this.bodies[0].$instance.rotation}
             }
         };
     }
@@ -82,8 +57,9 @@ class Solarsys extends Component {
     }
 
     loopTick(clock){
-        this.sun.rotation.x += 0.01;
-        this.sun.rotation.y += 0.01;
+        // this.bodies[0].$instance.rotation.x += 0.01;
+        // this.bodies[0].$instance.rotation.y += 0.01;
+        this.moveBody(0, clock) // SUN
 
         if(this.mainCamControls) {
             const delta = clock.getDelta();
@@ -93,6 +69,21 @@ class Solarsys extends Component {
 
         return this.sceneState;
     }
+
+	moveBody(bodyIdx, clock) { // TO DO Refactor how IDs are used and intervals are handled (use mid as well)
+		const startTime = this.interval.start,
+			endTime = this.interval.end;
+		const start = this.bodies[bodyIdx].coordinates[0];
+		const end = this.bodies[bodyIdx].coordinates[2];
+
+		const timeSpanMs = endTime - startTime;
+		const t = (clock.elapsedTime/10) / timeSpanMs;
+		this.bodies[bodyIdx].$instance.position.set(
+			lerp(start.x, end.x, t),
+			lerp(start.y, end.y, t), //lerp(start.y, end.y + 100000000000000, t),
+			lerp(start.z, end.z, t)
+		);
+	}
 
     viewActionCallback(cameraId, state) {
         switch(cameraId) {
@@ -128,19 +119,23 @@ class Solarsys extends Component {
     }
 }
 
-function addPlanet(addToScene, planetData) {// to do refactor
+function lerp(a, b, t) {
+    return a + (b - a) * t
+}
+
+function addPlanet(addToScene, planetData, color = 0xffff00) {
     var g = new THREE.SphereGeometry( planetData.radius, 12, 12 );
-    var m = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
+    var m = new THREE.MeshBasicMaterial( { color } );
     var planet = new THREE.Mesh( g, m );
-    planet.position.set(planetData.X,planetData.Y,planetData.Z);
+    planet.position.set(planetData.coordinates[0].x, planetData.coordinates[0].y ,planetData.coordinates[0].z);
     addToScene( planet );
     return planet;
 }
 function distanceVector( v1, v2 )
 {
-    var dx = v1.X - v2.X;
-    var dy = v1.Y - v2.Y;
-    var dz = v1.Z - v2.Z;
+    var dx = v1.x - v2.x;
+    var dy = v1.y - v2.y;
+    var dz = v1.z - v2.z;
 
     return Math.sqrt( dx * dx + dy * dy + dz * dz );
 }
@@ -158,11 +153,11 @@ function createOrbitVisualization(addToScene, center, object) {
     const curveMaterial = new THREE.LineBasicMaterial( { color : 0xff0000 } );
     
     const orbit = new THREE.Line( curveGeometry, curveMaterial );
-    orbit.position.set(center.X,center.Y,center.Z);
+    orbit.position.set(center.x,center.y,center.z);
     addToScene( orbit ); 
     // rotate orbit to hold and object on it
-    const plnVector = new THREE.Vector3(object.X,object.Y,0);
-    const objVector = new THREE.Vector3(object.X,object.Y,object.Z);
+    const plnVector = new THREE.Vector3(object.x,object.y,0);
+    const objVector = new THREE.Vector3(object.x,object.y,object.z);
     const orbVector = new THREE.Vector3(orbit.position.x,orbit.position.y,orbit.position.z);
     const zAngle = plnVector.angleTo(objVector);
     const aAngle = plnVector.angleTo(orbVector);
