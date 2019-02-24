@@ -41,7 +41,7 @@ export function getCurrentPositions() {
     const day = now.getDate();
     const month = now.getMonth() + 1;
     const year = now.getFullYear();
-    const hoursStart = now.getUTCHours() - 2 > 0 ? 12 : '00';
+    const hoursStart = now.getUTCHours() > 0 ? 12 : '00';
     
     const time1 = new Date(`${year}-${month}-${day} ${hoursStart}:00:00`).getTime();
     const time2 = new Date(time1 + MS_12_HOURS).getTime();
