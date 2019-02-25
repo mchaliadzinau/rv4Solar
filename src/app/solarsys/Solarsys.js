@@ -71,17 +71,21 @@ class Solarsys extends Component {
     }
 
 	moveBody(bodyIdx, clock) { // TO DO Refactor how IDs are used and intervals are handled (use mid as well)
-		const startTime = this.interval.start,
-			endTime = this.interval.end;
-		const start = this.bodies[bodyIdx].coordinates[0];
-		const end = this.bodies[bodyIdx].coordinates[2];
+        const time = getTime();
+        let coord1, coord2;
+        if(time < this.bodies[bodyIdx].coordinates[1].time) {
+            coord1 = this.bodies[bodyIdx].coordinates[0];
+            coord2 = this.bodies[bodyIdx].coordinates[1];
+        } else {
+            coord1 = this.bodies[bodyIdx].coordinates[1];
+            coord2 = this.bodies[bodyIdx].coordinates[2];
+        }
 
-		const timeSpanMs = endTime - startTime;
-		const t = (clock.elapsedTime/10) / timeSpanMs;
+		const t = time / coord2.time;
 		this.bodies[bodyIdx].$instance.position.set(
-			lerp(start.x, end.x, t),
-			lerp(start.y, end.y, t), //lerp(start.y, end.y + 100000000000000, t),
-			lerp(start.z, end.z, t)
+			lerp(coord1.x, coord2.x, t),
+			lerp(coord1.y, coord2.y + 696000*2, t), //lerp(coord1.y, coord2.y + 100000000000000, t),
+			lerp(coord1.z, coord2.z, t)
 		);
 	}
 
@@ -105,7 +109,7 @@ class Solarsys extends Component {
                     controls.domElement = domElement;
                     controls.rollSpeed = Math.PI / 24;
                     controls.autoForward = false;
-                    controls.dragToLook = false; // FIXME // on true direction fails after hitting input
+                    controls.dragToLook = true; // FIXME // on true direction fails after hitting input
                     controls.inertiaEnabled = false;
                 this.mainCamControls = controls;
                 this.sceneState.cameras.main.position = this.mainCamControls.object.position;
@@ -209,6 +213,10 @@ function starForge(addToScene) {
         stars.updateMatrix();
         addToScene( stars );
     }
+}
+
+function getTime() {
+    return Date.now();
 }
 
 export default $(Solarsys);
