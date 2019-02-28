@@ -58,9 +58,26 @@ class App extends Component {
 		})
 	}
 
-	renderPanelView(canvas, state, onViewStateChanged) {
+	setRef = ref => {
+		if(ref) {
+			ref.className === 'sun-label' && (this.sunRef = ref);
+			ref.className === 'mercury-label' && (this.mercuryRef = ref);
+			ref.className === 'venus-label' && (this.venusRef = ref);
+		}
+	}
+
+	renderPanelView = (canvas, state, onViewStateChanged) => {
 		const {x,y,z} = state.cameras && state.cameras.main.position	 ? state.cameras.main.position : {};
 		const rotation = state.cameras && state.cameras.main.rotation ? state.cameras.main.rotation : {};
+		
+		if(this.sunRef && state.entities) {
+			this.sunRef.style.left = state.entities.sun.projection.x + 'px'; 
+			this.sunRef.style.top = state.entities.sun.projection.y + 'px';
+			this.mercuryRef.style.left = state.entities.mercury.projection.x + 'px'; 
+			this.mercuryRef.style.top = state.entities.mercury.projection.y + 'px';
+			this.venusRef.style.left = state.entities.venus.projection.x + 'px'; 
+			this.venusRef.style.top = state.entities.venus.projection.y + 'px';
+		}
 		return div({className:'view'},
 			canvas, CamPanel({
 				x,y,z,
@@ -70,7 +87,11 @@ class App extends Component {
 				camInertia: state.cameras && state.cameras.main.inertiaEnabled,
 				onCamSpeedChange: (movementSpeed)=>{onViewStateChanged({movementSpeed})},
 				onCamInertiaClick: (inertiaEnabled)=>{onViewStateChanged({inertiaEnabled})},
-			})
+			}),
+			div({style:'position: absolute; color: white;', class: 'sun-label', ref: this.setRef}, 'Sun'),
+			div({style:'position: absolute; color: white;', class: 'mercury-label', ref: this.setRef}, 'Mercury'),
+			div({style:'position: absolute; color: white;', class: 'venus-label', ref: this.setRef}, 'Venus')
+
 		);
 	}
 
@@ -94,13 +115,6 @@ class App extends Component {
 					onUpdate: this.onViewUpdate,
 					render: this.renderPanelView // can be omitted if only canvas is required
 				})
-				// ,CamPanel({
-				// 	x, y, z, 
-				// 	_x, _y, _z,
-				// 	enableControls: true,
-				// 	camSpeed: 	this.camSpeed, 		onCamSpeedChange: 	speed => {this.camSpeed = speed},
-				// 	camInertia: inertiaEnabled, 	onCamInertiaClick: 	inertia => {this.controls.inertiaEnabled = inertia},
-				// })
 			)
 		)
 	}

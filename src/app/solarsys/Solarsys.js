@@ -39,7 +39,9 @@ class Solarsys extends Component {
                 }
             },
             entities: {
-                sun: {position: this.bodies[0].$instance.position, rotation: this.bodies[0].$instance.rotation}
+                sun: { position: this.bodies[0].$instance.position,  rotation: this.bodies[0].$instance.rotation },
+                mercury: { position: this.bodies[1].$instance.position,  rotation: this.bodies[1].$instance.rotation },
+                venus: { position: this.bodies[2].$instance.position,  rotation: this.bodies[2].$instance.rotation },
             }
         };
     }
@@ -60,11 +62,18 @@ class Solarsys extends Component {
         // this.bodies[0].$instance.rotation.x += 0.01;
         // this.bodies[0].$instance.rotation.y += 0.01;
         this.moveBody(0, clock) // SUN
+        this.moveBody(1, clock) // MERCURY
+        this.moveBody(2, clock) // VENUS
 
         if(this.mainCamControls) {
             const delta = clock.getDelta();
             this.mainCamControls.movementSpeed = (this.camSpeed || DEFAULT_CAM_SPEED) * delta;
             this.mainCamControls.update( delta );
+            
+            this.sceneState.entities.sun.projection = toScreenPosition(this.bodies[0].$instance, this.mainCamControls);
+            this.sceneState.entities.mercury.projection = toScreenPosition(this.bodies[1].$instance, this.mainCamControls);
+            this.sceneState.entities.venus.projection = toScreenPosition(this.bodies[2].$instance, this.mainCamControls);
+
         }
 
         return this.sceneState;
@@ -218,5 +227,16 @@ function starForge(addToScene) {
 function getTime() {
     return Date.now();
 }
+
+function toScreenPosition(obj, camera) {
+    const vector = new THREE.Vector3();
+    obj.updateMatrixWorld();
+    vector.setFromMatrixPosition(obj.matrixWorld);
+    vector.project(camera.object);
+    vector.x = ( vector.x * 0.5*camera.domElement.clientWidth ) + 0.5*camera.domElement.clientWidth; 
+    vector.y = - ( vector.y * 0.5*camera.domElement.clientHeight ) + 0.5*camera.domElement.clientHeight; 
+    return vector;
+}
+
 
 export default $(Solarsys);
