@@ -46,6 +46,12 @@ class Solarsys extends Component {
         };
     }
 
+    getData = () => {
+        const data = getCurrentPositions();
+        this.bodies     = data.positions;
+        this.interval   = data.interval;
+    }
+
     handleSceneChildren(children) {
         return children;
     }
@@ -85,15 +91,19 @@ class Solarsys extends Component {
         if(time < this.bodies[bodyIdx].coordinates[1].time) {
             coord1 = this.bodies[bodyIdx].coordinates[0];
             coord2 = this.bodies[bodyIdx].coordinates[1];
-        } else {
+        } else if(time >= this.bodies[bodyIdx].coordinates[1].time){
             coord1 = this.bodies[bodyIdx].coordinates[1];
             coord2 = this.bodies[bodyIdx].coordinates[2];
+        } else {
+            this.getData();
+            coord1 = this.bodies[bodyIdx].coordinates[0];
+            coord2 = this.bodies[bodyIdx].coordinates[1];
         }
 
-		const t = time / coord2.time;
+		const t = (coord2.time - time) / (coord2.time - coord1.time);
 		this.bodies[bodyIdx].$instance.position.set(
 			lerp(coord1.x, coord2.x, t),
-			lerp(coord1.y, coord2.y + 696000*2, t), //lerp(coord1.y, coord2.y + 100000000000000, t),
+			lerp(coord1.y, coord2.y, t),
 			lerp(coord1.z, coord2.z, t)
 		);
 	}
