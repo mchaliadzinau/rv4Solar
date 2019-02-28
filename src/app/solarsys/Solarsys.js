@@ -35,7 +35,7 @@ class Solarsys extends Component {
             cameras: {
                 main: {
                     position: null, rotation: null,
-                    speed: DEFAULT_CAM_SPEED, inertiaEnabled: false
+                    speed: this.camSpeed, inertiaEnabled: false
                 }
             },
             entities: {
@@ -79,7 +79,7 @@ class Solarsys extends Component {
             this.sceneState.entities.sun.projection = toScreenPosition(this.bodies[0].$instance, this.mainCamControls);
             this.sceneState.entities.mercury.projection = toScreenPosition(this.bodies[1].$instance, this.mainCamControls);
             this.sceneState.entities.venus.projection = toScreenPosition(this.bodies[2].$instance, this.mainCamControls);
-
+            this.sceneState.cameras.main.speed = (this.camSpeed || DEFAULT_CAM_SPEED);
         }
 
         return this.sceneState;
@@ -112,8 +112,8 @@ class Solarsys extends Component {
         switch(cameraId) {
             case "MAIN": {
                 console.log('viewActionCallback', cameraId, state);
-                this.mainCamControls.inertiaEnabled = state.inertiaEnabled ? state.inertiaEnabled : this.mainCamControls.inertiaEnabled;
-                this.camSpeed                       = state.movementSpeed ? state.movementSpeed : this.camSpeed;
+                this.mainCamControls.inertiaEnabled = typeof state.inertiaEnabled !== 'undefined' ? state.inertiaEnabled : this.mainCamControls.inertiaEnabled;
+                this.camSpeed                       = typeof state.movementSpeed !== 'undefined' ? state.movementSpeed : this.camSpeed;
             }
         }
     }
