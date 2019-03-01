@@ -6,6 +6,7 @@ import {getCurrentPositions, bodyIds} from './SolarsysService.mjs';
 
 const AU2KM = 149598000;
 const SOLAR_RADIUS = 696000;
+const DEBUG = true;
 
 const DEFAULT_CAM_SPEED = 696000000;
 class Solarsys extends Component {
@@ -25,6 +26,19 @@ class Solarsys extends Component {
         createOrbitVisualization(props.addToScene, Object.assign({}, this.bodies[0].coordinates[0]), Object.assign({}, this.bodies[2].coordinates[0]));
     
         starForge(props.addToScene);   // to do refactor
+
+        if(DEBUG) {
+            const startPoint = {x: 0, y: 0, z: 0},
+                dirX = {x: 1, y: 0, z: 0},
+                dirY = {x: 0, y: 1, z: 0},
+                dirZ = {x: 0, y: 0, z: 1};
+            const arrowX = new THREE.ArrowHelper(dirX, startPoint, AU2KM, 0xCC0000 );
+            const arrowY = new THREE.ArrowHelper(dirY, startPoint, AU2KM, 0xFFFF00 );
+            const arrowZ = new THREE.ArrowHelper(dirZ, startPoint, AU2KM, 0x0000FF );
+            props.addToScene(arrowX);
+            props.addToScene(arrowY);
+            props.addToScene(arrowZ);
+        }
 
         this.loopTick           = this.loopTick.bind(this);
         this.handleSceneChildren = this.handleSceneChildren.bind(this);
