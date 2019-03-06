@@ -27,7 +27,8 @@ const bodies = {
     [bodyIds.MERCURY]: {
         label: 'Mercury',
         color: 'gray',
-        radius: 2440
+        radius: 2440,
+        orbitDays: 88
     },
     [bodyIds.VENUS]: {
         label: 'Venus',
@@ -57,6 +58,12 @@ export function getCurrentPositions() {
                     Object.assign({},entry[time2], {time: time2}),
                     Object.assign({},entry[time3], {time: time3})
                 ],
+                orbit: [
+                    Object.assign({},entry[time1]),
+                    Object.assign({},entry[time1 +  22 * MS_24_HOURS]),
+                    Object.assign({},entry[time1 +  44 * MS_24_HOURS]),
+                    Object.assign({},entry[time1 +  88 * MS_24_HOURS]),
+                ]
             }, bodies[entry.id]);
             return entity;
         })

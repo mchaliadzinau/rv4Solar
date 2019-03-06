@@ -20,10 +20,10 @@ class Solarsys extends Component {
         this.bodies[0].$instance = addPlanet(props.addToScene, Object.assign({}, this.bodies[0]));
         // SET MERCURY
         this.bodies[1].$instance = addPlanet(props.addToScene, Object.assign({}, this.bodies[1]));
-        createOrbitVisualization(props.addToScene, Object.assign({}, this.bodies[0].coordinates[0]), Object.assign({}, this.bodies[1].coordinates[0]));
+        createOrbitVisualization(props.addToScene, {x:0, y: 0, z: 0}, Object.assign({}, this.bodies[1].orbit));
         // SET VENUS
         this.bodies[2].$instance = addPlanet(props.addToScene, Object.assign({}, this.bodies[2]));
-        createOrbitVisualization(props.addToScene, Object.assign({}, this.bodies[0].coordinates[0]), Object.assign({}, this.bodies[2].coordinates[0]));
+        // createOrbitVisualization(props.addToScene, {x:0, y: 0, z: 0}, Object.assign({}, this.bodies[2].orbit));
     
         starForge(props.addToScene);   // to do refactor
 
@@ -177,29 +177,21 @@ function distanceVector( v1, v2 )
     return Math.sqrt( dx * dx + dy * dy + dz * dz );
 }
 
-function createOrbitVisualization(addToScene, center, object) {
-    const radius = distanceVector(center, object)
-    const curve = new THREE.EllipseCurve(
-        0,  0,            // ax, aY
-        radius, radius,           // xRadius, yRadius
-        0,  2 * Math.PI,  // aStartAngle, aEndAngle
-        false,            // aClockwise
-        0                 // aRotation
-    );
-    const curveGeometry = new THREE.BufferGeometry().setFromPoints( curve.getPoints( 50 ) );
-    const curveMaterial = new THREE.LineBasicMaterial( { color : 0xff0000 } );
-    
-    const orbit = new THREE.Line( curveGeometry, curveMaterial );
-    orbit.position.set(center.x,center.y,center.z);
-    addToScene( orbit ); 
-    // rotate orbit to hold and object on it
-    const plnVector = new THREE.Vector3(object.x,object.y,0);
-    const objVector = new THREE.Vector3(object.x,object.y,object.z);
-    const orbVector = new THREE.Vector3(orbit.position.x,orbit.position.y,orbit.position.z);
-    const zAngle = plnVector.angleTo(objVector);
-    const aAngle = plnVector.angleTo(orbVector);
-    orbit.rotateZ(aAngle);
-    orbit.rotateX(zAngle);
+function createOrbitVisualization(addToScene, center, orbit) {
+    const p1 = new THREE.Vector3( orbit[0].x, orbit[0].y, orbit[0].z );
+    const p2 = new THREE.Vector3( orbit[1].x, orbit[1].y, orbit[1].z );
+    const segCenter = new THREE.Vector3( (p1.x + p2.x)/2 , (p1.y + p2.y)/2, (p1.z + p2.z)/2 );
+    const baryCenter = new THREE.Vector3( 0, 0, 0 );
+    const controlPoint = new THREE.Vector3(2*segCenter.x - baryCenter.x, 2*segCenter.y - baryCenter.y, 2*segCenter.z - baryCenter.z,);
+
+    var curve = new THREE.QuadraticBezierCurve3(p1, controlPoint, p2);
+    var points = curve.getPoints( 50 );
+    var geometry = new THREE.BufferGeometry().setFromPoints( points );
+    var material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
+    var curveObject = new THREE.Line( geometry, material );
+
+
+    addToScene(curveObject);
 }
 
 function starForge(addToScene) {
