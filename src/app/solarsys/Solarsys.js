@@ -32,12 +32,13 @@ class Solarsys extends Component {
                 dirX = {x: 1, y: 0, z: 0},
                 dirY = {x: 0, y: 1, z: 0},
                 dirZ = {x: 0, y: 0, z: 1};
-            const arrowX = new THREE.ArrowHelper(dirX, startPoint, AU2KM, 0xCC0000 );
-            const arrowY = new THREE.ArrowHelper(dirY, startPoint, AU2KM, 0xFFFF00 );
-            const arrowZ = new THREE.ArrowHelper(dirZ, startPoint, AU2KM, 0x0000FF );
-            props.addToScene(arrowX);
-            props.addToScene(arrowY);
-            props.addToScene(arrowZ);
+            // const arrowX = new THREE.ArrowHelper(dirX, startPoint, AU2KM, 0xCC0000 );
+            // const arrowY = new THREE.ArrowHelper(dirY, startPoint, AU2KM, 0xFFFF00 );
+            // const arrowZ = new THREE.ArrowHelper(dirZ, startPoint, AU2KM, 0x0000FF );
+            // props.addToScene(arrowX);
+            // props.addToScene(arrowY);
+            // props.addToScene(arrowZ);
+            props.addToScene(new THREE.AxesHelper( SOLAR_RADIUS * 10 ));
         }
 
         this.loopTick           = this.loopTick.bind(this);
@@ -178,20 +179,23 @@ function distanceVector( v1, v2 )
 }
 
 function createOrbitVisualization(addToScene, center, orbit) {
-    const p1 = new THREE.Vector3( orbit[0].x, orbit[0].y, orbit[0].z );
-    const p2 = new THREE.Vector3( orbit[1].x, orbit[1].y, orbit[1].z );
+    const material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
+    addToScene(createOrbitSegmentGeometry(orbit, 0, material, addToScene));
+    addToScene(createOrbitSegmentGeometry(orbit, 1, material, addToScene));
+    addToScene(createOrbitSegmentGeometry(orbit, 2, material, addToScene));
+}
+
+function createOrbitSegmentGeometry(orbit, idx, material, addToScene) {
+    const p1 = new THREE.Vector3( orbit[idx].x, orbit[idx].y, orbit[idx].z );
+    const p2 = new THREE.Vector3( orbit[idx + 1].x, orbit[idx + 1].y, orbit[idx + 1].z );
     const segCenter = new THREE.Vector3( (p1.x + p2.x)/2 , (p1.y + p2.y)/2, (p1.z + p2.z)/2 );
     const baryCenter = new THREE.Vector3( 0, 0, 0 );
     const controlPoint = new THREE.Vector3(2*segCenter.x - baryCenter.x, 2*segCenter.y - baryCenter.y, 2*segCenter.z - baryCenter.z,);
-
-    var curve = new THREE.QuadraticBezierCurve3(p1, controlPoint, p2);
-    var points = curve.getPoints( 50 );
-    var geometry = new THREE.BufferGeometry().setFromPoints( points );
-    var material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
-    var curveObject = new THREE.Line( geometry, material );
-
-
-    addToScene(curveObject);
+    addToScene(new THREE.ArrowHelper(controlPoint.clone().normalize(), controlPoint, AU2KM, 0xCC0000 ) )
+    const curve = new THREE.QuadraticBezierCurve3(p1, controlPoint, p2);
+    const points = curve.getPoints( 50 );
+    const geometry = new THREE.BufferGeometry().setFromPoints( points );
+    return new THREE.Line( geometry, material );
 }
 
 function starForge(addToScene) {
