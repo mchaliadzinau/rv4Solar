@@ -181,18 +181,22 @@ function distanceVector( v1, v2 )
 function createOrbitVisualization(addToScene, center, orbit) {
     const material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
     addToScene(createOrbitSegmentGeometry(orbit, 0, material, addToScene));
-    addToScene(createOrbitSegmentGeometry(orbit, 1, material, addToScene));
     addToScene(createOrbitSegmentGeometry(orbit, 2, material, addToScene));
+    addToScene(createOrbitSegmentGeometry(orbit, 4, material, addToScene));
+    addToScene(createOrbitSegmentGeometry(orbit, 6, material, addToScene));
 }
 
 function createOrbitSegmentGeometry(orbit, idx, material, addToScene) {
     const p1 = new THREE.Vector3( orbit[idx].x, orbit[idx].y, orbit[idx].z );
     const p2 = new THREE.Vector3( orbit[idx + 1].x, orbit[idx + 1].y, orbit[idx + 1].z );
-    const segCenter = new THREE.Vector3( (p1.x + p2.x)/2 , (p1.y + p2.y)/2, (p1.z + p2.z)/2 );
-    const baryCenter = new THREE.Vector3( 0, 0, 0 );
-    const controlPoint = new THREE.Vector3(2*segCenter.x - baryCenter.x, 2*segCenter.y - baryCenter.y, 2*segCenter.z - baryCenter.z,);
+    const p3 = new THREE.Vector3( orbit[idx + 2].x, orbit[idx + 2].y, orbit[idx + 2].z );
+
+    const p1p3middle = new THREE.Vector3( (p1.x + p3.x)/2 , (p1.y + p3.y)/2, (p1.z + p3.z)/2 );
+
+    const controlPoint = new THREE.Vector3(2*p2.x - p1p3middle.x, 2*p2.y - p1p3middle.y, 2*p2.z - p1p3middle.z,);
+    
     addToScene(new THREE.ArrowHelper(controlPoint.clone().normalize(), controlPoint, AU2KM, 0xCC0000 ) )
-    const curve = new THREE.QuadraticBezierCurve3(p1, controlPoint, p2);
+    const curve = new THREE.QuadraticBezierCurve3(p1, controlPoint, p3);
     const points = curve.getPoints( 50 );
     const geometry = new THREE.BufferGeometry().setFromPoints( points );
     return new THREE.Line( geometry, material );

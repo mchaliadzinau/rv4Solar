@@ -60,8 +60,13 @@ export function getCurrentPositions() {
                 ],
                 orbit: [
                     Object.assign({},entry[time1]),
+                    Object.assign({},entry[time1 +  11 * MS_24_HOURS]),
                     Object.assign({},entry[time1 +  22 * MS_24_HOURS]),
+                    Object.assign({},entry[time1 +  33 * MS_24_HOURS]),
                     Object.assign({},entry[time1 +  44 * MS_24_HOURS]),
+                    Object.assign({},entry[time1 +  55 * MS_24_HOURS]),
+                    Object.assign({},entry[time1 +  66 * MS_24_HOURS]),
+                    Object.assign({},entry[time1 +  77 * MS_24_HOURS]),
                     Object.assign({},entry[time1 +  88 * MS_24_HOURS]),
                 ]
             }, bodies[entry.id]);
