@@ -13,9 +13,7 @@ class Solarsys extends Component {
     constructor(props) {
         super(props);
         
-        const data = getCurrentPositions();
-        this.bodies     = data.positions;
-        this.interval   = data.interval;
+        this.getData();
         // SET SUN
         this.bodies[0].$instance = addPlanet(props.addToScene, Object.assign({}, this.bodies[0]));
         // SET MERCURY
@@ -24,7 +22,15 @@ class Solarsys extends Component {
         // SET VENUS
         this.bodies[2].$instance = addPlanet(props.addToScene, Object.assign({}, this.bodies[2]));
         createOrbitVisualization(props.addToScene, {x:0, y: 0, z: 0}, Object.assign({}, this.bodies[2].orbit));
-    
+        // SET EARTH
+        this.bodies[3].$instance = addPlanet(props.addToScene, Object.assign({}, this.bodies[3]));
+        createOrbitVisualization(props.addToScene, {x:0, y: 0, z: 0}, Object.assign({}, this.bodies[3].orbit));
+        
+        // SET MARS
+        this.bodies[4].$instance = addPlanet(props.addToScene, Object.assign({}, this.bodies[4]));
+        createOrbitVisualization(props.addToScene, {x:0, y: 0, z: 0}, Object.assign({}, this.bodies[4].orbit));
+                
+
         starForge(props.addToScene);   // to do refactor
 
         if(DEBUG) {
@@ -180,16 +186,16 @@ function distanceVector( v1, v2 )
 
 function createOrbitVisualization(addToScene, center, orbit) {
     const material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
-    addToScene(createOrbitSegmentGeometry(orbit, 0, material, addToScene));
-    addToScene(createOrbitSegmentGeometry(orbit, 2, material, addToScene));
-    addToScene(createOrbitSegmentGeometry(orbit, 4, material, addToScene));
-    addToScene(createOrbitSegmentGeometry(orbit, 6, material, addToScene));
+    orbit[0] && orbit[1] && orbit[2] && addToScene(createOrbitSegmentGeometry(orbit[0], orbit[1], orbit[2], material, addToScene));
+    orbit[2] && orbit[3] && orbit[4] && addToScene(createOrbitSegmentGeometry(orbit[2], orbit[3], orbit[4], material, addToScene));
+    orbit[4] && orbit[5] && orbit[6] && addToScene(createOrbitSegmentGeometry(orbit[4], orbit[5], orbit[6], material, addToScene));
+    orbit[6] && orbit[7] && orbit[8] && addToScene(createOrbitSegmentGeometry(orbit[6], orbit[7], orbit[8], material, addToScene));
 }
 
-function createOrbitSegmentGeometry(orbit, idx, material, addToScene) {
-    const p1 = new THREE.Vector3( orbit[idx].x, orbit[idx].y, orbit[idx].z );
-    const p2 = new THREE.Vector3( orbit[idx + 1].x, orbit[idx + 1].y, orbit[idx + 1].z );
-    const p3 = new THREE.Vector3( orbit[idx + 2].x, orbit[idx + 2].y, orbit[idx + 2].z );
+function createOrbitSegmentGeometry(point1, point2, point3, material, addToScene) {
+    const p1 = new THREE.Vector3( point1.x, point1.y, point1.z );
+    const p2 = new THREE.Vector3( point2.x, point2.y, point2.z );
+    const p3 = new THREE.Vector3( point3.x, point3.y, point3.z );
 
     const p1p3middle = new THREE.Vector3( (p1.x + p3.x)/2 , (p1.y + p3.y)/2, (p1.z + p3.z)/2 );
 

@@ -37,6 +37,20 @@ const bodies = {
         radius: 6051,
         orbitDays: 225,
         rotationPeriod: 243
+    },
+    [bodyIds.EARTH]: {
+        label: 'Earth',
+        color: 'green',
+        radius: 6371,
+        orbitDays: 365,
+        rotationPeriod: 1 // 23 hours, 56 minutes
+    },
+    [bodyIds.MARS]: {
+        label: 'Mars',
+        color: 'red',
+        radius: 3389.5,
+        orbitDays: 687,
+        rotationPeriod: 1 // 24 hours, 39 minutes, and 35.244 seconds.
     }
 }; 
 
@@ -65,15 +79,15 @@ export function getCurrentPositions() {
                         Object.assign({},entry[time3], {time: time3})
                     ],
                     orbit: orbitSplitTime > 0 ? [
-                        Object.assign({},entry[time1]),
-                        Object.assign({},entry[time1 +  orbitSplitTime]),
-                        Object.assign({},entry[time1 +  2 * orbitSplitTime]),
-                        Object.assign({},entry[time1 +  3 * orbitSplitTime]),
-                        Object.assign({},entry[time1 +  4 * orbitSplitTime]),
-                        Object.assign({},entry[time1 +  5 * orbitSplitTime]),
-                        Object.assign({},entry[time1 +  6 * orbitSplitTime]),
-                        Object.assign({},entry[time1 +  7 * orbitSplitTime]),
-                        Object.assign({},entry[time1 +  8 * orbitSplitTime]),
+                        entry[time1] ? Object.assign({},entry[time1]) : null,
+                        entry[time1 +  orbitSplitTime] ? Object.assign({},entry[time1 +  orbitSplitTime]) : null,
+                        entry[time1 +  2 * orbitSplitTime] ? Object.assign({},entry[time1 +  2 * orbitSplitTime]) : null,
+                        entry[time1 +  3 * orbitSplitTime] ? Object.assign({},entry[time1 +  3 * orbitSplitTime]) : null,
+                        entry[time1 +  4 * orbitSplitTime] ? Object.assign({},entry[time1 +  4 * orbitSplitTime]) : null,
+                        entry[time1 +  5 * orbitSplitTime] ? Object.assign({},entry[time1 +  5 * orbitSplitTime]) : null,
+                        entry[time1 +  6 * orbitSplitTime] ? Object.assign({},entry[time1 +  6 * orbitSplitTime]) : null,
+                        entry[time1 +  7 * orbitSplitTime] ? Object.assign({},entry[time1 +  7 * orbitSplitTime]) : null,
+                        entry[time1 +  8 * orbitSplitTime] ? Object.assign({},entry[time1 +  8 * orbitSplitTime]) : null,
                     ] : []
                 }, bodies[entry.id]);
                 return entity;
