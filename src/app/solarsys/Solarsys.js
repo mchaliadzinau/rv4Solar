@@ -23,7 +23,7 @@ class Solarsys extends Component {
         createOrbitVisualization(props.addToScene, {x:0, y: 0, z: 0}, Object.assign({}, this.bodies[1].orbit));
         // SET VENUS
         this.bodies[2].$instance = addPlanet(props.addToScene, Object.assign({}, this.bodies[2]));
-        // createOrbitVisualization(props.addToScene, {x:0, y: 0, z: 0}, Object.assign({}, this.bodies[2].orbit));
+        createOrbitVisualization(props.addToScene, {x:0, y: 0, z: 0}, Object.assign({}, this.bodies[2].orbit));
     
         starForge(props.addToScene);   // to do refactor
 
@@ -194,7 +194,7 @@ function createOrbitSegmentGeometry(orbit, idx, material, addToScene) {
     const p1p3middle = new THREE.Vector3( (p1.x + p3.x)/2 , (p1.y + p3.y)/2, (p1.z + p3.z)/2 );
 
     const controlPoint = new THREE.Vector3(2*p2.x - p1p3middle.x, 2*p2.y - p1p3middle.y, 2*p2.z - p1p3middle.z,);
-    
+
     addToScene(new THREE.ArrowHelper(controlPoint.clone().normalize(), controlPoint, AU2KM, 0xCC0000 ) )
     const curve = new THREE.QuadraticBezierCurve3(p1, controlPoint, p3);
     const points = curve.getPoints( 50 );

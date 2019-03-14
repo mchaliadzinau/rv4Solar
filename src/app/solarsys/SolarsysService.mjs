@@ -1,6 +1,7 @@
 import MOCK_DATA from './mockData.mjs'
 const MS_12_HOURS = 43200000;
 const MS_24_HOURS = 86400000;
+const ORBIT_POINTS = 8;
 
 export const bodyIds = {
     SUN: 10,
@@ -33,7 +34,9 @@ const bodies = {
     [bodyIds.VENUS]: {
         label: 'Venus',
         color: 'yellow',
-        radius: 6051
+        radius: 6051,
+        orbitDays: 225,
+        rotationPeriod: 243
     }
 }; 
 
@@ -51,26 +54,32 @@ export function getCurrentPositions() {
     return {
         interval: {start: time1, mid: time2, end: time3},
         positions: MOCK_DATA.map(entry=>{
-            const entity = Object.assign({},{
-                id: entry.id, 
-                coordinates: [
-                    Object.assign({},entry[time1], {time: time1}), 
-                    Object.assign({},entry[time2], {time: time2}),
-                    Object.assign({},entry[time3], {time: time3})
-                ],
-                orbit: [
-                    Object.assign({},entry[time1]),
-                    Object.assign({},entry[time1 +  11 * MS_24_HOURS]),
-                    Object.assign({},entry[time1 +  22 * MS_24_HOURS]),
-                    Object.assign({},entry[time1 +  33 * MS_24_HOURS]),
-                    Object.assign({},entry[time1 +  44 * MS_24_HOURS]),
-                    Object.assign({},entry[time1 +  55 * MS_24_HOURS]),
-                    Object.assign({},entry[time1 +  66 * MS_24_HOURS]),
-                    Object.assign({},entry[time1 +  77 * MS_24_HOURS]),
-                    Object.assign({},entry[time1 +  88 * MS_24_HOURS]),
-                ]
-            }, bodies[entry.id]);
-            return entity;
+            if(bodies[entry.id]) {
+                const orbitSplitTime = bodies[entry.id].orbitDays ? Math.ceil(bodies[entry.id].orbitDays / ORBIT_POINTS) * MS_24_HOURS : 0;
+    
+                const entity = Object.assign({},{
+                    id: entry.id, 
+                    coordinates: [
+                        Object.assign({},entry[time1], {time: time1}), 
+                        Object.assign({},entry[time2], {time: time2}),
+                        Object.assign({},entry[time3], {time: time3})
+                    ],
+                    orbit: orbitSplitTime > 0 ? [
+                        Object.assign({},entry[time1]),
+                        Object.assign({},entry[time1 +  orbitSplitTime]),
+                        Object.assign({},entry[time1 +  2 * orbitSplitTime]),
+                        Object.assign({},entry[time1 +  3 * orbitSplitTime]),
+                        Object.assign({},entry[time1 +  4 * orbitSplitTime]),
+                        Object.assign({},entry[time1 +  5 * orbitSplitTime]),
+                        Object.assign({},entry[time1 +  6 * orbitSplitTime]),
+                        Object.assign({},entry[time1 +  7 * orbitSplitTime]),
+                        Object.assign({},entry[time1 +  8 * orbitSplitTime]),
+                    ] : []
+                }, bodies[entry.id]);
+                return entity;
+            } else {
+                return {}
+            }
         })
     };
 }
