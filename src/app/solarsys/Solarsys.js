@@ -185,14 +185,13 @@ function distanceVector( v1, v2 )
 }
 
 function createOrbitVisualization(addToScene, center, orbit) {
-    const material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
-    orbit[0] && orbit[1] && orbit[2] && addToScene(createOrbitSegmentGeometry(orbit[0], orbit[1], orbit[2], material, addToScene));
-    orbit[2] && orbit[3] && orbit[4] && addToScene(createOrbitSegmentGeometry(orbit[2], orbit[3], orbit[4], material, addToScene));
-    orbit[4] && orbit[5] && orbit[6] && addToScene(createOrbitSegmentGeometry(orbit[4], orbit[5], orbit[6], material, addToScene));
-    orbit[6] && orbit[7] && orbit[8] && addToScene(createOrbitSegmentGeometry(orbit[6], orbit[7], orbit[8], material, addToScene));
+    orbit[0] && orbit[1] && orbit[2] && addToScene(createOrbitSegmentGeometry(orbit[0], orbit[1], orbit[2], addToScene));
+    orbit[2] && orbit[3] && orbit[4] && addToScene(createOrbitSegmentGeometry(orbit[2], orbit[3], orbit[4], addToScene));
+    orbit[4] && orbit[5] && orbit[6] && addToScene(createOrbitSegmentGeometry(orbit[4], orbit[5], orbit[6], addToScene));
+    orbit[6] && orbit[7] && orbit[8] && addToScene(createOrbitSegmentGeometry(orbit[6], orbit[7], orbit[8], addToScene));
 }
 
-function createOrbitSegmentGeometry(point1, point2, point3, material, addToScene) {
+function createOrbitSegmentGeometry(point1, point2, point3, addToScene) {
     const p1 = new THREE.Vector3( point1.x, point1.y, point1.z );
     const p2 = new THREE.Vector3( point2.x, point2.y, point2.z );
     const p3 = new THREE.Vector3( point3.x, point3.y, point3.z );
@@ -205,7 +204,15 @@ function createOrbitSegmentGeometry(point1, point2, point3, material, addToScene
     const curve = new THREE.QuadraticBezierCurve3(p1, controlPoint, p3);
     const points = curve.getPoints( 50 );
     const geometry = new THREE.BufferGeometry().setFromPoints( points );
-    return new THREE.Line( geometry, material );
+    const lineSegments = new THREE.LineSegments( geometry, new THREE.LineDashedMaterial( {
+        color: 0xffffff,
+        linewidth: 1,
+        scale: 1,
+        dashSize: 1,
+        gapSize: 0.5,
+    }));
+    lineSegments.computeLineDistances();
+    return lineSegments;
 }
 
 function starForge(addToScene) {
