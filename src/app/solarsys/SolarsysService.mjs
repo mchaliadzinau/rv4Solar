@@ -54,8 +54,8 @@ const bodies = {
     }
 }; 
 
-export function getCurrentPositions() {
-    const now = new Date();
+export function getCurrentPositions(ms) {
+    const now = ms ? new Date(ms) : new Date();
     const day = now.getDate();
     const month = now.getMonth() + 1;
     const year = now.getFullYear();

@@ -7,6 +7,7 @@ import {getCurrentPositions, bodyIds} from './SolarsysService.mjs';
 const AU2KM = 149598000;
 const SOLAR_RADIUS = 696000;
 const DEBUG = true;
+const DEBUG_TIME_MULTIPLIER = 6000;
 
 const DEFAULT_CAM_SPEED = 696000000;
 class Solarsys extends Component {
@@ -18,6 +19,10 @@ class Solarsys extends Component {
         this.bodies[0].$instance = addPlanet(props.addToScene, Object.assign({}, this.bodies[0]));
         // SET MERCURY
         this.bodies[1].$instance = addPlanet(props.addToScene, Object.assign({}, this.bodies[1]));
+        DEBUG && (this.bodies[1].$debug = {
+            startDummyPos: addPlanet(props.addToScene, Object.assign({}, this.bodies[0])), 
+            endDummyPos: addPlanet(props.addToScene, Object.assign({}, this.bodies[0])), 
+        });
         createOrbitVisualization(props.addToScene, {x:0, y: 0, z: 0}, Object.assign({}, this.bodies[1].orbit));
         // SET VENUS
         this.bodies[2].$instance = addPlanet(props.addToScene, Object.assign({}, this.bodies[2]));
@@ -67,9 +72,17 @@ class Solarsys extends Component {
         };
     }
 
-    getData = () => {
-        const data = getCurrentPositions();
-        this.bodies     = data.positions;
+    getData = (ms) => {
+        const data = getCurrentPositions(ms);
+        if(!this.bodies) {
+            this.bodies = data.positions;
+        } else {
+            this.bodies.map((body,idx)=>{
+                body.coordinates = data.positions[idx].coordinates;
+                body.orbit = data.positions[idx].orbit;
+                return body;
+            });
+        }
         this.interval   = data.interval;
     }
 
@@ -88,9 +101,9 @@ class Solarsys extends Component {
     loopTick(clock){
         // this.bodies[0].$instance.rotation.x += 0.01;
         // this.bodies[0].$instance.rotation.y += 0.01;
-        this.moveBody(0, clock) // SUN
+        // this.moveBody(0, clock) // SUN
         this.moveBody(1, clock) // MERCURY
-        this.moveBody(2, clock) // VENUS
+        // this.moveBody(2, clock) // VENUS
 
         if(this.mainCamControls) {
             const delta = clock.getDelta();
@@ -107,25 +120,31 @@ class Solarsys extends Component {
     }
 
 	moveBody(bodyIdx, clock) { // TO DO Refactor how IDs are used and intervals are handled (use mid as well)
-        const time = getTime();
+        const time = getTime(clock);
         let coord1, coord2;
         if(time < this.bodies[bodyIdx].coordinates[1].time) {
             coord1 = this.bodies[bodyIdx].coordinates[0];
             coord2 = this.bodies[bodyIdx].coordinates[1];
-        } else if(time >= this.bodies[bodyIdx].coordinates[1].time){
+        } else if(time >= this.bodies[bodyIdx].coordinates[1].time && time < this.bodies[bodyIdx].coordinates[2] ){
             coord1 = this.bodies[bodyIdx].coordinates[1];
             coord2 = this.bodies[bodyIdx].coordinates[2];
         } else {
-            this.getData();
+            this.getData(time);
             coord1 = this.bodies[bodyIdx].coordinates[0];
             coord2 = this.bodies[bodyIdx].coordinates[1];
         }
 
-		const t = (coord2.time - time) / (coord2.time - coord1.time);
+        DEBUG && this.bodies[bodyIdx].$debug && this.bodies[bodyIdx].$debug.startDummyPos.position.set(coord1.x, coord1.y, coord1.z);
+        DEBUG && this.bodies[bodyIdx].$debug && this.bodies[bodyIdx].$debug.endDummyPos.position.set(coord2.x, coord2.y, coord2.z);
+        const t = (coord2.time - time) / (coord2.time - coord1.time);
+        DEBUG && console.log('|','\tt\t|\t', t);
+        const vec = new THREE.Vector3(coord2.x, coord2.y, coord2.z);
+        const endPosVec = new THREE.Vector3(coord1.x, coord1.y, coord1.z);
+        vec.lerp(endPosVec, t);
 		this.bodies[bodyIdx].$instance.position.set(
-			lerp(coord1.x, coord2.x, t),
-			lerp(coord1.y, coord2.y, t),
-			lerp(coord1.z, coord2.z, t)
+			vec.x,
+			vec.y,
+			vec.z
 		);
 	}
 
@@ -261,8 +280,13 @@ function starForge(addToScene) {
     }
 }
 
-function getTime() {
-    return Date.now();
+function getTime(clock) {
+    const now = Date.now();
+    if(DEBUG) {
+        const debugTime = now + (clock.elapsedTime*1000) * DEBUG_TIME_MULTIPLIER;
+        console.log('|','\tdebugTime\t|\t', new Date(debugTime));
+        return now + (clock.elapsedTime*1000) * 20000;
+    } else return Date.now();
 }
 
 function toScreenPosition(obj, camera) {
