@@ -7,7 +7,7 @@ import {getCurrentPositions, bodyIds} from './SolarsysService.mjs';
 const AU2KM = 149598000;
 const SOLAR_RADIUS = 696000;
 const DEBUG = true;
-const DEBUG_TIME_MULTIPLIER = 6000;
+const DEBUG_TIME_MULTIPLIER = 10000000;
 
 const DEFAULT_CAM_SPEED = 696000000;
 class Solarsys extends Component {
@@ -283,9 +283,9 @@ function starForge(addToScene) {
 function getTime(clock) {
     const now = Date.now();
     if(DEBUG) {
-        const debugTime = now + (clock.elapsedTime*1000) * DEBUG_TIME_MULTIPLIER;
+        const debugTime = now + clock.elapsedTime * DEBUG_TIME_MULTIPLIER;
         console.log('|','\tdebugTime\t|\t', new Date(debugTime));
-        return now + (clock.elapsedTime*1000) * 20000;
+        return debugTime;
     } else return Date.now();
 }
 

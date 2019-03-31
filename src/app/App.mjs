@@ -66,7 +66,7 @@ class App extends Component {
 		}
 	}
 
-	renderPanelView = (canvas, state, onViewStateChanged) => {
+	renderPanelView = (canvas, state, onViewStateChanged) => { // TO DO Refactor to improve performance
 		const {x,y,z} = state.cameras && state.cameras.main.position	 ? state.cameras.main.position : {};
 		const rotation = state.cameras && state.cameras.main.rotation ? state.cameras.main.rotation : {};
 		
